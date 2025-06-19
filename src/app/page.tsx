@@ -10,6 +10,7 @@ import ActivityFilter from "../components/ActivityFilter";
 import TimelineSharing from "../components/TimelineSharing";
 import FileImport from "../components/FileImport";
 import TimelineLayoutSwitcher, { TimelineLayout } from "../components/TimelineLayoutSwitcher";
+import StartOver from "../components/StartOver";
 import { useColors } from "../context/ColorContext";
 
 export type Activity = {
@@ -32,7 +33,7 @@ export default function HomePage() {
   const [currentTimeline, setCurrentTimeline] = useState<TimelineConfig | null>(null);
   const [savedTimelines, setSavedTimelines] = useState<TimelineConfig[]>([]);
   const [timelineLayout, setTimelineLayout] = useState<TimelineLayout>('inline');
-  const { colors } = useColors();
+  const { colors, resetColors } = useColors();
 
   // Load saved data from localStorage
   useEffect(() => {
@@ -122,6 +123,28 @@ export default function HomePage() {
     setTimelineLayout(layout);
   };
 
+  const handleStartOver = () => {
+    // Clear all data
+    setActivities([]);
+    setFilteredActivities([]);
+    setSelectedActivity(null);
+    setCurrentTimeline(null);
+    setSavedTimelines([]);
+    setTimelineLayout('inline');
+    
+    // Clear localStorage
+    localStorage.removeItem(ACTIVITIES_STORAGE_KEY);
+    localStorage.removeItem(TIMELINES_STORAGE_KEY);
+    localStorage.removeItem(LAYOUT_STORAGE_KEY);
+    
+    // Reset colors to default
+    resetColors();
+    
+    // Clear any other stored data
+    localStorage.removeItem('colorSettings');
+    localStorage.removeItem('customThemes');
+  };
+
   return (
     <main className="min-h-screen flex flex-col items-center py-10" style={{ backgroundColor: colors.pageBackground }}>
       <h1 className="text-4xl font-bold mb-8 text-gray-900">Journey Timeline</h1>
@@ -146,6 +169,7 @@ export default function HomePage() {
         <FileImport
           onImport={importActivities}
         />
+        <StartOver onStartOver={handleStartOver} />
       </div>
 
       {/* Current timeline info */}

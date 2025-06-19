@@ -93,6 +93,7 @@ type ColorContextType = {
   saveCustomTheme: (name: string) => void;
   deleteCustomTheme: (name: string) => void;
   resetToTheme: (themeName?: string) => void;
+  resetColors: () => void;
 };
 
 const ColorContext = createContext<ColorContextType | undefined>(undefined);
@@ -170,6 +171,18 @@ export function ColorProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const resetColors = () => {
+    // Reset to default Light theme
+    setCurrentTheme('Light');
+    setColors(themes[0].colors);
+    setCustomThemes([]);
+    
+    // Clear localStorage
+    localStorage.removeItem(CUSTOM_THEMES_KEY);
+    localStorage.removeItem(CURRENT_THEME_KEY);
+    localStorage.removeItem(COLOR_SETTINGS_KEY);
+  };
+
   return (
     <ColorContext.Provider value={{
       colors,
@@ -180,6 +193,7 @@ export function ColorProvider({ children }: { children: React.ReactNode }) {
       saveCustomTheme,
       deleteCustomTheme,
       resetToTheme,
+      resetColors,
     }}>
       {children}
     </ColorContext.Provider>

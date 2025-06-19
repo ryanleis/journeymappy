@@ -66,27 +66,29 @@ export default function Timeline({ activities, onSelect, layout }: TimelineProps
           })}
         </div>
 
-        {/* Timeline line */}
-        <div 
-          className="relative h-1 rounded-full mx-4"
-          style={{ backgroundColor: colors.timelineColor }}
-        >
-          {/* Timeline markers */}
-          {sorted.map((activity) => {
-            const pos = ((new Date(activity.endDate).getTime() - minDate) / range) * 100;
-            return (
-              <div
-                key={activity.id}
-                className="absolute top-1/2 w-3 h-3 rounded-full border-2"
-                style={{ 
-                  left: `${pos}%`,
-                  backgroundColor: colors.activityBoxBackground,
-                  borderColor: colors.activityBoxText,
-                  transform: "translate(-50%, -50%)"
-                }}
-              />
-            );
-          })}
+        {/* Timeline line with extended padding */}
+        <div className="relative mx-32">
+          <div 
+            className="h-1 rounded-full"
+            style={{ backgroundColor: colors.timelineColor }}
+          >
+            {/* Timeline markers with dots */}
+            {sorted.map((activity) => {
+              const pos = ((new Date(activity.endDate).getTime() - minDate) / range) * 100;
+              return (
+                <div
+                  key={activity.id}
+                  className="absolute top-1/2 w-4 h-4 rounded-full border-2 shadow-sm"
+                  style={{ 
+                    left: `${pos}%`,
+                    backgroundColor: colors.activityBoxBackground,
+                    borderColor: colors.timelineColor,
+                    transform: "translate(-50%, -50%)"
+                  }}
+                />
+              );
+            })}
+          </div>
         </div>
 
         {/* Bottom row of activities */}
@@ -132,14 +134,31 @@ export default function Timeline({ activities, onSelect, layout }: TimelineProps
   // Inline layout (original)
   return (
     <div className="relative h-32 flex items-center">
-      {/* Timeline line */}
-      <div 
-        className="absolute left-0 right-0 top-1/2 h-1 rounded-full z-0" 
+      {/* Timeline line with extended padding */}
+      <div className="absolute left-32 right-32 top-1/2 h-1 rounded-full z-0" 
         style={{ 
           backgroundColor: colors.timelineColor,
           transform: "translateY(-50%)" 
         }} 
       />
+      
+      {/* Timeline markers with dots */}
+      {sorted.map((activity) => {
+        const pos = ((new Date(activity.endDate).getTime() - minDate) / range) * 100;
+        return (
+          <div
+            key={`marker-${activity.id}`}
+            className="absolute top-1/2 w-4 h-4 rounded-full border-2 shadow-sm z-5"
+            style={{ 
+              left: `calc(32px + ${pos}% * (calc(100% - 64px) / 100%))`,
+              backgroundColor: colors.activityBoxBackground,
+              borderColor: colors.timelineColor,
+              transform: "translate(-50%, -50%)"
+            }}
+          />
+        );
+      })}
+      
       {/* Activity boxes */}
       {sorted.map((activity) => {
         const pos = ((new Date(activity.endDate).getTime() - minDate) / range) * 100;
@@ -147,7 +166,7 @@ export default function Timeline({ activities, onSelect, layout }: TimelineProps
           <div
             key={activity.id}
             className="absolute z-10"
-            style={{ left: `calc(${pos}% - 60px)` }}
+            style={{ left: `calc(32px + ${pos}% * (calc(100% - 64px) / 100%) - 60px)` }}
           >
             <button
               onClick={() => onSelect(activity)}
