@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import ActivityForm from "../components/ActivityForm";
 import Timeline from "../components/Timeline";
 import ActivityModal from "../components/ActivityModal";
+import ActivityEditModal from "../components/ActivityEditModal";
 import ColorSettings from "../components/ColorSettings";
 import TimelineSetup, { TimelineConfig } from "../components/TimelineSetup";
 import PDFExport from "../components/PDFExport";
@@ -30,6 +31,7 @@ export default function HomePage() {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [filteredActivities, setFilteredActivities] = useState<Activity[]>([]);
   const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
+  const [editingActivity, setEditingActivity] = useState<Activity | null>(null);
   const [currentTimeline, setCurrentTimeline] = useState<TimelineConfig | null>(null);
   const [savedTimelines, setSavedTimelines] = useState<TimelineConfig[]>([]);
   const [timelineLayout, setTimelineLayout] = useState<TimelineLayout>('inline');
@@ -123,6 +125,25 @@ export default function HomePage() {
     setTimelineLayout(layout);
   };
 
+  const deleteActivity = (activityId: string) => {
+    const updatedActivities = activities.filter(activity => activity.id !== activityId);
+    setActivities(updatedActivities);
+    setFilteredActivities(updatedActivities);
+  };
+
+  const editActivity = (activity: Activity) => {
+    setEditingActivity(activity);
+  };
+
+  const saveEditedActivity = (updatedActivity: Activity) => {
+    const updatedActivities = activities.map(activity => 
+      activity.id === updatedActivity.id ? updatedActivity : activity
+    );
+    setActivities(updatedActivities);
+    setFilteredActivities(updatedActivities);
+    setEditingActivity(null);
+  };
+
   const handleStartOver = () => {
     // Clear all data
     setActivities([]);
@@ -200,6 +221,16 @@ export default function HomePage() {
         <ActivityModal
           activity={selectedActivity}
           onClose={() => setSelectedActivity(null)}
+          onDelete={deleteActivity}
+          onEdit={editActivity}
+        />
+      )}
+      
+      {editingActivity && (
+        <ActivityEditModal
+          activity={editingActivity}
+          onClose={() => setEditingActivity(null)}
+          onSave={saveEditedActivity}
         />
       )}
       

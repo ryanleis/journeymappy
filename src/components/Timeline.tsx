@@ -26,6 +26,12 @@ export default function Timeline({ activities, onSelect, layout }: TimelineProps
   const maxDate = new Date(sorted[sorted.length - 1].endDate).getTime();
   const range = maxDate - minDate || 1;
 
+  // Calculate minimum spacing needed for activities
+  const activityWidth = 120; // min-width of activity boxes
+  const minSpacing = 20; // minimum space between activities
+  const totalActivitySpace = sorted.length * (activityWidth + minSpacing);
+  const containerWidth = Math.max(totalActivitySpace, 800); // minimum 800px width
+
   if (layout === 'outline') {
     return (
       <div className="relative py-8">
@@ -66,8 +72,8 @@ export default function Timeline({ activities, onSelect, layout }: TimelineProps
           })}
         </div>
 
-        {/* Timeline line with extended padding */}
-        <div className="relative mx-32">
+        {/* Timeline line with dynamic width */}
+        <div className="relative" style={{ width: `${containerWidth}px`, maxWidth: '100%', margin: '0 auto' }}>
           <div 
             className="h-1 rounded-full"
             style={{ backgroundColor: colors.timelineColor }}
@@ -133,9 +139,9 @@ export default function Timeline({ activities, onSelect, layout }: TimelineProps
 
   // Inline layout (original)
   return (
-    <div className="relative h-32 flex items-center">
-      {/* Timeline line with extended padding */}
-      <div className="absolute left-32 right-32 top-1/2 h-1 rounded-full z-0" 
+    <div className="relative h-32 flex items-center" style={{ width: `${containerWidth}px`, maxWidth: '100%', margin: '0 auto' }}>
+      {/* Timeline line with dynamic width */}
+      <div className="absolute left-0 right-0 top-1/2 h-1 rounded-full z-0" 
         style={{ 
           backgroundColor: colors.timelineColor,
           transform: "translateY(-50%)" 
@@ -150,7 +156,7 @@ export default function Timeline({ activities, onSelect, layout }: TimelineProps
             key={`marker-${activity.id}`}
             className="absolute top-1/2 w-4 h-4 rounded-full border-2 shadow-sm z-5"
             style={{ 
-              left: `calc(32px + ${pos}% * (calc(100% - 64px) / 100%))`,
+              left: `${pos}%`,
               backgroundColor: colors.activityBoxBackground,
               borderColor: colors.timelineColor,
               transform: "translate(-50%, -50%)"
@@ -166,7 +172,7 @@ export default function Timeline({ activities, onSelect, layout }: TimelineProps
           <div
             key={activity.id}
             className="absolute z-10"
-            style={{ left: `calc(32px + ${pos}% * (calc(100% - 64px) / 100%) - 60px)` }}
+            style={{ left: `calc(${pos}% - 60px)` }}
           >
             <button
               onClick={() => onSelect(activity)}
