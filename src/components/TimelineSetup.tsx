@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useColors } from '../context/ColorContext';
+import type { Activity } from '../app/page';
 
 export type TimelineConfig = {
   id: string;
@@ -9,17 +10,20 @@ export type TimelineConfig = {
   startDate: string;
   endDate: string;
   createdAt: string;
+  updatedAt: string; // last modified (metadata or activities)
+  activities: Activity[]; // activities snapshot per timeline
 };
 
 type TimelineSetupProps = {
-  onSave: (config: Omit<TimelineConfig, 'id' | 'createdAt'>) => void;
+  onSave: (config: Omit<TimelineConfig, 'id' | 'createdAt' | 'updatedAt' | 'activities'>) => void;
   onLoad: (config: TimelineConfig) => void;
   onDelete: (timelineId: string) => void;
+  onUpdate: (updates: { name: string; startDate: string; endDate: string }) => void;
   savedTimelines: TimelineConfig[];
   currentTimeline: TimelineConfig | null;
 };
 
-export default function TimelineSetup({ onSave, onLoad, onDelete, savedTimelines, currentTimeline }: TimelineSetupProps) {
+export default function TimelineSetup({ onSave, onLoad, onDelete, onUpdate, savedTimelines, currentTimeline }: TimelineSetupProps) {
   const { colors } = useColors();
   const [isOpen, setIsOpen] = useState(false);
   const [form, setForm] = useState({
@@ -28,10 +32,27 @@ export default function TimelineSetup({ onSave, onLoad, onDelete, savedTimelines
     endDate: currentTimeline?.endDate || '',
   });
 
+  React.useEffect(() => {
+    // Sync form with current timeline when it changes
+    setForm({
+      name: currentTimeline?.name || '',
+      startDate: currentTimeline?.startDate || '',
+      endDate: currentTimeline?.endDate || '',
+    });
+  }, [currentTimeline?.id]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name || !form.startDate || !form.endDate) return;
     onSave(form);
+    setIsOpen(false);
+  };
+
+  const handleUpdate = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentTimeline) return;
+    if (!form.name || !form.startDate || !form.endDate) return;
+    onUpdate(form);
     setIsOpen(false);
   };
 
@@ -101,12 +122,20 @@ export default function TimelineSetup({ onSave, onLoad, onDelete, savedTimelines
               <p className="text-xs opacity-75" style={{ color: colors.activityBoxText }}>
                 Created: {new Date(currentTimeline.createdAt).toLocaleDateString()}
               </p>
+              <p className="text-xs opacity-75" style={{ color: colors.activityBoxText }}>
+                Last Modified: {new Date(currentTimeline.updatedAt).toLocaleString()}
+              </p>
+              <p className="text-xs opacity-50" style={{ color: colors.activityBoxText }}>
+                Activities: {currentTimeline.activities.length}
+              </p>
             </div>
           )}
 
-          {/* Save Timeline Form */}
-          <form onSubmit={handleSubmit} className="space-y-4 mb-6">
-            <h4 className="font-medium" style={{ color: colors.activityBoxText }}>Save New Timeline</h4>
+          {/* Save / Update Timeline Form */}
+          <form onSubmit={currentTimeline ? handleUpdate : handleSubmit} className="space-y-4 mb-6">
+            <h4 className="font-medium" style={{ color: colors.activityBoxText }}>
+              {currentTimeline ? 'Update Current Timeline' : 'Save New Timeline'}
+            </h4>
             <div>
               <label className="block text-sm mb-1" style={{ color: colors.activityBoxText }}>Timeline Name</label>
               <input
@@ -147,7 +176,7 @@ export default function TimelineSetup({ onSave, onLoad, onDelete, savedTimelines
                 color: colors.activityBoxBackground
               }}
             >
-              Save Timeline
+              {currentTimeline ? 'Update Timeline' : 'Save Timeline'}
             </button>
           </form>
 
@@ -155,7 +184,7 @@ export default function TimelineSetup({ onSave, onLoad, onDelete, savedTimelines
           {savedTimelines.length > 0 && (
             <div>
               <h4 className="font-medium mb-3" style={{ color: colors.activityBoxText }}>Saved Timelines</h4>
-              <div className="space-y-2 max-h-40 overflow-y-auto">
+              <div className="space-y-2 max-h-56 overflow-y-auto">
                 {savedTimelines.map((timeline) => (
                   <div
                     key={timeline.id}
@@ -170,12 +199,15 @@ export default function TimelineSetup({ onSave, onLoad, onDelete, savedTimelines
                         border: `1px solid ${colors.activityBoxText}`
                       }}
                     >
-                      <div className="font-medium">{timeline.name}</div>
+                      <div className="font-medium flex justify-between items-center">
+                        <span>{timeline.name}</span>
+                        <span className="text-xs opacity-70">{timeline.activities.length} acts</span>
+                      </div>
                       <div className="text-sm opacity-75">
                         {timeline.startDate} - {timeline.endDate}
                       </div>
                       <div className="text-xs opacity-50">
-                        {new Date(timeline.createdAt).toLocaleDateString()}
+                        Modified: {new Date(timeline.updatedAt).toLocaleDateString()} {new Date(timeline.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </div>
                     </button>
                     <button
@@ -210,4 +242,4 @@ export default function TimelineSetup({ onSave, onLoad, onDelete, savedTimelines
       )}
     </div>
   );
-} 
+}
