@@ -38,54 +38,79 @@ export default function HomePage() {
   const { colors, resetColors } = useColors();
   const [isTimelineManagerOpen, setTimelineManagerOpen] = useState(false);
   const [isDisplayModeOpen, setDisplayModeOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  // Load saved data from localStorage
+  useEffect(() => { setMounted(true); }, []);
+
+  // Load saved data from DB (timelines) and local activities as a fallback
   useEffect(() => {
-    const savedActivities = localStorage.getItem(ACTIVITIES_STORAGE_KEY);
-    const savedTimelinesData = localStorage.getItem(TIMELINES_STORAGE_KEY);
-    const savedLayout = localStorage.getItem(LAYOUT_STORAGE_KEY);
-    
-    if (savedActivities) {
-      const parsedActivities = JSON.parse(savedActivities);
-      setActivities(parsedActivities);
-      setFilteredActivities(parsedActivities);
-    }
-    if (savedTimelinesData) {
-      // Backward compatibility transform (add missing fields)
-      const timelinesRaw = JSON.parse(savedTimelinesData);
-      const timelines: TimelineConfig[] = timelinesRaw.map((t: any) => ({
-        ...t,
-        activities: t.activities || [],
-        updatedAt: t.updatedAt || t.createdAt || new Date().toISOString(),
-      }));
-      setSavedTimelines(timelines);
-      if (timelines.length > 0) {
-        setCurrentTimeline(timelines[timelines.length - 1]);
-        // Load that timeline's activities snapshot if stored
-        const timelineActs = timelines[timelines.length - 1].activities;
-        if (timelineActs?.length) {
-          setActivities(timelineActs);
-          setFilteredActivities(timelineActs);
+    const init = async () => {
+      try {
+        const res = await fetch('/api/timelines', { cache: 'no-store' });
+        if (res.ok) {
+          const timelines = await res.json();
+          setSavedTimelines(timelines);
+          const mostRecent = timelines[0] ?? null; // API returns desc by updatedAt
+          if (mostRecent) {
+            setCurrentTimeline(mostRecent);
+            setActivities(mostRecent.activities || []);
+            setFilteredActivities(mostRecent.activities || []);
+          } else {
+            // fallback to any locally cached activities (legacy)
+            const savedActivities = localStorage.getItem(ACTIVITIES_STORAGE_KEY);
+            if (savedActivities) {
+              const parsed = JSON.parse(savedActivities);
+              setActivities(parsed);
+              setFilteredActivities(parsed);
+            }
+          }
+        }
+      } catch (e) {
+        // On error, fall back entirely to local cache to keep app usable
+        const savedActivities = localStorage.getItem(ACTIVITIES_STORAGE_KEY);
+        if (savedActivities) {
+          const parsed = JSON.parse(savedActivities);
+          setActivities(parsed);
+          setFilteredActivities(parsed);
         }
       }
-    }
-    if (savedLayout) {
-      setTimelineLayout(savedLayout as TimelineLayout);
-    }
+      const savedLayout = localStorage.getItem(LAYOUT_STORAGE_KEY);
+      if (savedLayout) setTimelineLayout(savedLayout as TimelineLayout);
+    };
+    init();
   }, []);
 
-  // Persist activities (global list for backward compatibility) and also sync to current timeline snapshot
+  // Persist activities to local cache (legacy) and update the current timeline snapshot in DB
   useEffect(() => {
     localStorage.setItem(ACTIVITIES_STORAGE_KEY, JSON.stringify(activities));
-    if (currentTimeline) {
-      setSavedTimelines(prev => prev.map(t => t.id === currentTimeline.id ? { ...t, activities, updatedAt: new Date().toISOString() } : t));
-    }
+    const persist = async () => {
+      if (!currentTimeline) return;
+      try {
+        const res = await fetch('/api/timelines', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: currentTimeline.id,
+            name: currentTimeline.name,
+            startDate: currentTimeline.startDate,
+            endDate: currentTimeline.endDate,
+            activities,
+          }),
+        });
+        if (res.ok) {
+          const updated = await res.json();
+          setCurrentTimeline(updated);
+          setSavedTimelines(prev => {
+            const copy = prev.slice();
+            const i = copy.findIndex(t => t.id === updated.id);
+            if (i >= 0) copy[i] = updated; else copy.unshift(updated);
+            return copy;
+          });
+        }
+      } catch {}
+    };
+    persist();
   }, [activities]);
-
-  // Save timelines list to localStorage
-  useEffect(() => {
-    localStorage.setItem(TIMELINES_STORAGE_KEY, JSON.stringify(savedTimelines));
-  }, [savedTimelines]);
 
   // Save layout to localStorage
   useEffect(() => {
@@ -113,6 +138,9 @@ export default function HomePage() {
     return () => window.removeEventListener('keydown', handler);
   }, [isDisplayModeOpen]);
 
+  // Ensure hooks order is stable; gate rendering only after hooks have been declared
+  if (!mounted) return null;
+
   const addActivity = (activity: Omit<Activity, "id">) => {
     const newActivity = { ...activity, id: Date.now().toString() };
     const updatedActivities = [...activities, newActivity];
@@ -130,23 +158,33 @@ export default function HomePage() {
     setFilteredActivities(updatedActivities);
   };
 
-  const saveTimeline = (config: Omit<TimelineConfig, 'id' | 'createdAt' | 'updatedAt' | 'activities'>) => {
-    const newTimeline: TimelineConfig = {
-      ...config,
-      id: Date.now().toString(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      activities: activities, // snapshot of current activities
-    };
-    setSavedTimelines([...savedTimelines, newTimeline]);
-    setCurrentTimeline(newTimeline);
+  const saveTimeline = async (config: Omit<TimelineConfig, 'id' | 'createdAt' | 'updatedAt' | 'activities'>) => {
+    try {
+      const res = await fetch('/api/timelines', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...config, activities }),
+      });
+      if (!res.ok) return;
+      const created = await res.json();
+      setSavedTimelines(prev => [created, ...prev]);
+      setCurrentTimeline(created);
+    } catch {}
   };
 
-  const updateCurrentTimeline = (updates: { name: string; startDate: string; endDate: string }) => {
+  const updateCurrentTimeline = async (updates: { name: string; startDate: string; endDate: string }) => {
     if (!currentTimeline) return;
-    const updated = { ...currentTimeline, ...updates, updatedAt: new Date().toISOString() };
-    setCurrentTimeline(updated);
-    setSavedTimelines(prev => prev.map(t => t.id === updated.id ? updated : t));
+    try {
+      const res = await fetch('/api/timelines', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: currentTimeline.id, ...updates, activities }),
+      });
+      if (!res.ok) return;
+      const updated = await res.json();
+      setCurrentTimeline(updated);
+      setSavedTimelines(prev => prev.map(t => t.id === updated.id ? updated : t));
+    } catch {}
   };
 
   const loadTimeline = (timeline: TimelineConfig) => {
@@ -156,7 +194,10 @@ export default function HomePage() {
     setFilteredActivities(timeline.activities || []);
   };
 
-  const deleteTimeline = (timelineId: string) => {
+  const deleteTimeline = async (timelineId: string) => {
+    try {
+      await fetch(`/api/timelines?id=${encodeURIComponent(timelineId)}`, { method: 'DELETE' });
+    } catch {}
     const updatedTimelines = savedTimelines.filter(t => t.id !== timelineId);
     setSavedTimelines(updatedTimelines);
     if (currentTimeline?.id === timelineId) {

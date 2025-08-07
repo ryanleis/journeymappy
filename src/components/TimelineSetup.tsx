@@ -27,10 +27,10 @@ function formatDateTimeUTC(iso: string) {
 }
 
 type TimelineSetupProps = {
-  onSave: (config: Omit<TimelineConfig, 'id' | 'createdAt' | 'updatedAt' | 'activities'>) => void;
-  onLoad: (config: TimelineConfig) => void;
-  onDelete: (timelineId: string) => void;
-  onUpdate: (updates: { name: string; startDate: string; endDate: string }) => void;
+  onSave: (config: Omit<TimelineConfig, 'id' | 'createdAt' | 'updatedAt' | 'activities'>) => void | Promise<void>;
+  onLoad: (config: TimelineConfig) => void | Promise<void>;
+  onDelete: (timelineId: string) => void | Promise<void>;
+  onUpdate: (updates: { name: string; startDate: string; endDate: string }) => void | Promise<void>;
   savedTimelines: TimelineConfig[];
   currentTimeline: TimelineConfig | null;
 };
@@ -43,6 +43,11 @@ export default function TimelineSetup({ onSave, onLoad, onDelete, onUpdate, save
     startDate: currentTimeline?.startDate || '',
     endDate: currentTimeline?.endDate || '',
   });
+  const [mounted, setMounted] = useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   React.useEffect(() => {
     // Sync form with current timeline when it changes
@@ -74,6 +79,8 @@ export default function TimelineSetup({ onSave, onLoad, onDelete, onUpdate, save
       onDelete(timelineId);
     }
   };
+
+  if (!mounted) return null;
 
   return (
     <div className="fixed top-4 right-4 z-40">
