@@ -1,5 +1,7 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
-import { Activity } from "../app/page";
+import type { Activity } from "../app/page";
 import { useColors } from "../context/ColorContext";
 import type { TimelineLayout } from "./TimelineLayoutSwitcher";
 
@@ -16,17 +18,20 @@ function sortByEndDate(a: Activity, b: Activity) {
 export default function Timeline({ activities, onSelect, layout }: TimelineProps) {
   const { colors } = useColors();
   const sorted = [...activities].sort(sortByEndDate);
-  const [viewportWidth, setViewportWidth] = useState<number>(typeof window !== 'undefined' ? window.innerWidth : 1024);
+  const [mounted, setMounted] = useState(false);
+  const [viewportWidth, setViewportWidth] = useState<number>(0);
 
   useEffect(() => {
+    setMounted(true);
     const handleResize = () => setViewportWidth(window.innerWidth);
+    setViewportWidth(window.innerWidth);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   if (sorted.length === 0) return <div className="text-gray-400 text-center py-10">No activities yet. Add one above!</div>;
 
-  // Date range + layout calculations (unchanged core logic)
+  // Core positioning independent of viewport to avoid SSR/CSR mismatch
   const minDate = new Date(sorted[0].endDate).getTime();
   const maxDate = new Date(sorted[sorted.length - 1].endDate).getTime();
   const range = maxDate - minDate || 1;
@@ -41,18 +46,33 @@ export default function Timeline({ activities, onSelect, layout }: TimelineProps
   const lastPos = adjustedPositions[adjustedPositions.length - 1];
   const leftEdgeFirst = adjustedPositions[0] - activityWidth / 2;
   const shift = leftEdgeFirst;
-  const displayPositions = adjustedPositions.map(p => p - shift);
-  const containerWidth = Math.ceil((lastPos - shift) + activityWidth / 2);
+  const normalizedPositions = adjustedPositions.map(p => p - shift);
+  const naturalContainerWidth = Math.ceil((lastPos - shift) + activityWidth / 2);
 
-  // Decide if we need scrolling
-  const horizontalPadding = 48; // allowance for page side padding
-  const needsScroll = containerWidth > (viewportWidth - horizontalPadding);
+  // Viewport-aware adjustments only after mount
+  const horizontalPadding = 64;
+  const availableWidth = mounted ? Math.max(300, viewportWidth - horizontalPadding) : Infinity;
+
+  let needsScroll = false;
+  let scaleFactor = 1;
+  let positions = normalizedPositions;
+  let containerWidth = naturalContainerWidth;
+
+  if (mounted && containerWidth > availableWidth) {
+    if (containerWidth <= availableWidth * 1.3) {
+      scaleFactor = availableWidth / containerWidth;
+      positions = normalizedPositions.map(p => p * scaleFactor);
+      containerWidth = Math.round(availableWidth);
+    } else {
+      needsScroll = true;
+    }
+  }
 
   const lineStart = 0;
   const lineEnd = containerWidth;
   const lineWidth = lineEnd - lineStart;
 
-  const markerElements = displayPositions.map((x, idx) => (
+  const markerElements = positions.map((x, idx) => (
     <div
       key={`marker-${sorted[idx].id}`}
       className={`absolute top-1/2 ${layout === 'outline' ? 'w-4 h-4' : 'w-3 h-3'} rounded-full border-2 shadow-sm z-10`}
@@ -65,7 +85,7 @@ export default function Timeline({ activities, onSelect, layout }: TimelineProps
       <div className="relative h-32 flex items-center mb-8">
         {sorted.map((activity, index) => {
           if (index % 2 !== 0) return null;
-          const left = displayPositions[index];
+          const left = positions[index];
           return (
             <div key={activity.id} className="absolute z-10" style={{ left: `${left}px`, transform: 'translateX(-50%)' }}>
               <button onClick={() => onSelect(activity)} className="rounded-xl shadow-lg px-6 py-3 min-w-[140px] text-center font-semibold hover:scale-105 hover:shadow-2xl transition-all duration-200" style={{ backgroundColor: colors.activityBoxBackground, color: colors.activityBoxText }}>{activity.name}</button>
@@ -79,7 +99,7 @@ export default function Timeline({ activities, onSelect, layout }: TimelineProps
       <div className="relative h-32 flex items-center mt-8">
         {sorted.map((activity, index) => {
           if (index % 2 !== 1) return null;
-          const left = displayPositions[index];
+          const left = positions[index];
           return (
             <div key={activity.id} className="absolute z-10" style={{ left: `${left}px`, transform: 'translateX(-50%)' }}>
               <div className="absolute bottom-full left-1/2 w-px h-8" style={{ backgroundColor: colors.timelineColor, transform: 'translateX(-50%)' }} />
@@ -96,7 +116,7 @@ export default function Timeline({ activities, onSelect, layout }: TimelineProps
       <div className="absolute" style={{ left: `${lineStart}px`, top: '50%', width: `${lineWidth}px`, height: '4px', backgroundColor: colors.timelineColor, transform: 'translateY(-50%)', borderRadius: '2px' }} />
       {markerElements}
       {sorted.map((activity, index) => {
-        const x = displayPositions[index];
+        const x = positions[index];
         const isAbove = index % 2 === 0;
         const boxTop = isAbove ? 'calc(50% - 130px)' : 'calc(50% + 30px)';
         return (
@@ -111,11 +131,12 @@ export default function Timeline({ activities, onSelect, layout }: TimelineProps
 
   const content = layout === 'outline' ? OutlineContent : InlineContent;
 
-  if (needsScroll) {
+  if (mounted && (containerWidth > availableWidth)) {
+    // Enable horizontal scroll when too wide
     return (
       <div className="relative w-full">
         <div className="overflow-x-auto pb-4" style={{ scrollbarColor: `${colors.timelineColor} transparent` }}>
-          <div className="min-w-full inline-block" style={{ paddingBottom: '4px' }}>
+          <div style={{ width: `${naturalContainerWidth}px` }}>
             {content}
           </div>
         </div>
@@ -128,7 +149,6 @@ export default function Timeline({ activities, onSelect, layout }: TimelineProps
     );
   }
 
-  // Fits viewport: left align (shift) with no horizontal scroll
   return (
     <div className="relative w-full" style={{ maxWidth: '100%' }}>
       {content}

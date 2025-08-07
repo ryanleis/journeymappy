@@ -14,6 +14,18 @@ export type TimelineConfig = {
   activities: Activity[]; // activities snapshot per timeline
 };
 
+// Deterministic UTC formatting to avoid SSR/CSR mismatch
+function formatDateUTC(iso: string) {
+  try {
+    return new Intl.DateTimeFormat('en-CA', { timeZone: 'UTC', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(iso));
+  } catch { return iso; }
+}
+function formatDateTimeUTC(iso: string) {
+  try {
+    return new Intl.DateTimeFormat('en-CA', { timeZone: 'UTC', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }).format(new Date(iso));
+  } catch { return iso; }
+}
+
 type TimelineSetupProps = {
   onSave: (config: Omit<TimelineConfig, 'id' | 'createdAt' | 'updatedAt' | 'activities'>) => void;
   onLoad: (config: TimelineConfig) => void;
@@ -120,10 +132,10 @@ export default function TimelineSetup({ onSave, onLoad, onDelete, onUpdate, save
                 Period: {currentTimeline.startDate} to {currentTimeline.endDate}
               </p>
               <p className="text-xs opacity-75" style={{ color: colors.activityBoxText }}>
-                Created: {new Date(currentTimeline.createdAt).toLocaleDateString()}
+                Created: {formatDateUTC(currentTimeline.createdAt)}
               </p>
               <p className="text-xs opacity-75" style={{ color: colors.activityBoxText }}>
-                Last Modified: {new Date(currentTimeline.updatedAt).toLocaleString()}
+                Last Modified: {formatDateTimeUTC(currentTimeline.updatedAt)}
               </p>
               <p className="text-xs opacity-50" style={{ color: colors.activityBoxText }}>
                 Activities: {currentTimeline.activities.length}
@@ -207,7 +219,7 @@ export default function TimelineSetup({ onSave, onLoad, onDelete, onUpdate, save
                         {timeline.startDate} - {timeline.endDate}
                       </div>
                       <div className="text-xs opacity-50">
-                        Modified: {new Date(timeline.updatedAt).toLocaleDateString()} {new Date(timeline.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        Modified: {formatDateTimeUTC(timeline.updatedAt)}
                       </div>
                     </button>
                     <button
