@@ -37,6 +37,7 @@ export default function HomePage() {
   const [timelineLayout, setTimelineLayout] = useState<TimelineLayout>('inline');
   const { colors, resetColors } = useColors();
   const [isTimelineManagerOpen, setTimelineManagerOpen] = useState(false);
+  const [isDisplayModeOpen, setDisplayModeOpen] = useState(false);
 
   // Load saved data from localStorage
   useEffect(() => {
@@ -90,6 +91,27 @@ export default function HomePage() {
   useEffect(() => {
     localStorage.setItem(LAYOUT_STORAGE_KEY, timelineLayout);
   }, [timelineLayout]);
+
+  // Keyboard shortcuts: F to open Display Mode, ESC to close
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      const tag = target?.tagName?.toLowerCase();
+      const typing = tag === 'input' || tag === 'textarea' || target?.isContentEditable;
+      if (typing) return;
+      if (e.key === 'f' || e.key === 'F') {
+        e.preventDefault();
+        setDisplayModeOpen(true);
+      } else if (e.key === 'Escape') {
+        if (isDisplayModeOpen) {
+          e.preventDefault();
+          setDisplayModeOpen(false);
+        }
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [isDisplayModeOpen]);
 
   const addActivity = (activity: Omit<Activity, "id">) => {
     const newActivity = { ...activity, id: Date.now().toString() };
@@ -212,6 +234,17 @@ export default function HomePage() {
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h8m-8 6h16" /></svg>
         </button>
+        <button
+          onClick={() => setDisplayModeOpen(true)}
+          className="rounded-lg p-3 shadow-lg hover:shadow-xl transition-shadow"
+          style={{ backgroundColor: colors.activityBoxBackground, color: colors.activityBoxText }}
+          title="Open Display Mode (Press F)"
+          aria-label="Open Display Mode (Press F)"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M4 6a2 2 0 0 1 2-2h5v2H6v5H4V6zm10-2h4a2 2 0 0 1 2 2v4h-2V6h-4V4zM4 14h2v4h4v2H6a2 2 0 0 1-2-2v-4zm16 0v4a2 2 0 0 1-2 2h-4v-2h4v-4h2z" />
+          </svg>
+        </button>
         <PDFExport activities={filteredActivities} timelineConfig={currentTimeline} />
         <TimelineSharing currentTimeline={currentTimeline} activities={activities} />
         <FileImport onImport={importActivities} />
@@ -235,7 +268,7 @@ export default function HomePage() {
       <div className="w-full max-w-2xl mb-10">
         <ActivityForm onAdd={addActivity} />
       </div>
-      <div className="w-full max-w-4xl">
+      <div className="w-full px-4 md:px-8" style={{ marginTop: '1.125in' }}>
         <Timeline activities={filteredActivities} onSelect={setSelectedActivity} layout={timelineLayout} />
       </div>
       {selectedActivity && (
@@ -247,6 +280,39 @@ export default function HomePage() {
       <ActivityFilter activities={activities} currentTimeline={currentTimeline} onFilterChange={handleFilterChange} />
       <TimelineLayoutSwitcher currentLayout={timelineLayout} onLayoutChange={handleLayoutChange} />
       <ColorSettings />
+
+      {/* Display Mode Fullscreen Overlay */}
+      {isDisplayModeOpen && (
+        <div className="fixed inset-0 z-50">
+          {/* Dimmed backdrop */}
+          <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => setDisplayModeOpen(false)} />
+          {/* Foreground content */}
+          <div className="relative flex flex-col h-full" style={{ backgroundColor: colors.pageBackground }}>
+            <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: colors.timelineColor }}>
+              <div className="flex items-center gap-3">
+                <h3 className="text-lg font-semibold" style={{ color: colors.activityBoxText }}>Display Mode</h3>
+                {currentTimeline && (
+                  <span className="text-sm opacity-75" style={{ color: colors.activityBoxText }}>{currentTimeline.name}</span>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setDisplayModeOpen(false)}
+                  className="rounded px-3 py-2"
+                  style={{ backgroundColor: colors.activityBoxBackground, color: colors.activityBoxText, border: `1px solid ${colors.timelineColor}` }}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+            <div className="flex-1 w-full overflow-hidden p-4">
+              <div className="w-full h-full" style={{ marginTop: '2in' }}>
+                <Timeline activities={filteredActivities} onSelect={setSelectedActivity} layout={timelineLayout} />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Timeline Manager Modal */}
       {isTimelineManagerOpen && (

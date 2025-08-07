@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import type { Activity } from "../app/page";
 import { useColors } from "../context/ColorContext";
 import type { TimelineLayout } from "./TimelineLayoutSwitcher";
@@ -19,14 +19,27 @@ export default function Timeline({ activities, onSelect, layout }: TimelineProps
   const { colors } = useColors();
   const sorted = [...activities].sort(sortByEndDate);
   const [mounted, setMounted] = useState(false);
-  const [viewportWidth, setViewportWidth] = useState<number>(0);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [containerWidth, setContainerWidth] = useState<number>(0);
 
   useEffect(() => {
     setMounted(true);
-    const handleResize = () => setViewportWidth(window.innerWidth);
-    setViewportWidth(window.innerWidth);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    const measure = () => {
+      const w = containerRef.current?.clientWidth ?? window.innerWidth;
+      setContainerWidth(Math.max(0, w));
+    };
+    measure();
+    // Safely use ResizeObserver if available
+    let ro: ResizeObserver | null = null;
+    if (typeof window !== 'undefined' && 'ResizeObserver' in window && containerRef.current) {
+      ro = new ResizeObserver(() => measure());
+      ro.observe(containerRef.current);
+    }
+    window.addEventListener('resize', measure);
+    return () => {
+      try { ro && ro.disconnect(); } catch {}
+      window.removeEventListener('resize', measure);
+    };
   }, []);
 
   if (sorted.length === 0) return <div className="text-gray-400 text-center py-10">No activities yet. Add one above!</div>;
@@ -49,28 +62,33 @@ export default function Timeline({ activities, onSelect, layout }: TimelineProps
   const normalizedPositions = adjustedPositions.map(p => p - shift);
   const naturalContainerWidth = Math.ceil((lastPos - shift) + activityWidth / 2);
 
-  // Viewport-aware adjustments only after mount
-  const horizontalPadding = 64;
-  const availableWidth = mounted ? Math.max(300, viewportWidth - horizontalPadding) : Infinity;
+  // Available width is based on this component's container, not the viewport
+  const availableWidth = mounted ? Math.max(300, containerWidth) : Infinity;
 
-  let needsScroll = false;
-  let scaleFactor = 1;
+  // Proportional scaling: fill container when there's space; scroll when too wide
   let positions = normalizedPositions;
-  let containerWidth = naturalContainerWidth;
+  let contentWidth = naturalContainerWidth;
+  let needsScroll = false;
 
-  if (mounted && containerWidth > availableWidth) {
-    if (containerWidth <= availableWidth * 1.3) {
-      scaleFactor = availableWidth / containerWidth;
-      positions = normalizedPositions.map(p => p * scaleFactor);
-      containerWidth = Math.round(availableWidth);
+  if (mounted) {
+    if (contentWidth > availableWidth) {
+      needsScroll = true; // only timeline section scrolls horizontally
     } else {
-      needsScroll = true;
+      const scaleFactor = contentWidth > 0 ? (availableWidth / contentWidth) : 1;
+      positions = positions.map(p => p * scaleFactor);
+      contentWidth = Math.round(availableWidth);
     }
   }
 
   const lineStart = 0;
-  const lineEnd = containerWidth;
+  const lineEnd = contentWidth;
   const lineWidth = lineEnd - lineStart;
+
+  // Equal vertical gap from the line for above/below boxes
+  const verticalGapBase = layout === 'outline' ? 32 : 100; // original gap in px
+  const verticalGap = Math.round(verticalGapBase * 0.75); // 25% smaller
+  const boxApproxHeight = 56; // approximate button height for container sizing only
+  const containerHeight = verticalGap * 2 + boxApproxHeight * 2;
 
   const markerElements = positions.map((x, idx) => (
     <div
@@ -81,48 +99,83 @@ export default function Timeline({ activities, onSelect, layout }: TimelineProps
   ));
 
   const OutlineContent = (
-    <div className="relative py-8" style={{ width: `${containerWidth}px` }}>
-      <div className="relative h-32 flex items-center mb-8">
-        {sorted.map((activity, index) => {
-          if (index % 2 !== 0) return null;
-          const left = positions[index];
-          return (
-            <div key={activity.id} className="absolute z-10" style={{ left: `${left}px`, transform: 'translateX(-50%)' }}>
-              <button onClick={() => onSelect(activity)} className="rounded-xl shadow-lg px-6 py-3 min-w-[140px] text-center font-semibold hover:scale-105 hover:shadow-2xl transition-all duration-200" style={{ backgroundColor: colors.activityBoxBackground, color: colors.activityBoxText }}>{activity.name}</button>
-              <div className="absolute top-full left-1/2 w-px h-8" style={{ backgroundColor: colors.timelineColor, transform: 'translateX(-50%)' }} />
-            </div>
-          );
-        })}
-      </div>
-      <div className="absolute" style={{ left: `${lineStart}px`, top: '50%', width: `${lineWidth}px`, height: '4px', backgroundColor: colors.timelineColor, transform: 'translateY(-50%)', borderRadius: '2px' }} />
-      {markerElements}
-      <div className="relative h-32 flex items-center mt-8">
-        {sorted.map((activity, index) => {
-          if (index % 2 !== 1) return null;
-          const left = positions[index];
-          return (
-            <div key={activity.id} className="absolute z-10" style={{ left: `${left}px`, transform: 'translateX(-50%)' }}>
-              <div className="absolute bottom-full left-1/2 w-px h-8" style={{ backgroundColor: colors.timelineColor, transform: 'translateX(-50%)' }} />
-              <button onClick={() => onSelect(activity)} className="rounded-xl shadow-lg px-6 py-3 min-w-[140px] text-center font-semibold hover:scale-105 hover:shadow-2xl transition-all duration-200" style={{ backgroundColor: colors.activityBoxBackground, color: colors.activityBoxText }}>{activity.name}</button>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-
-  const InlineContent = (
-    <div className="relative h-64" style={{ width: `${containerWidth}px` }}>
+    <div className="relative" style={{ width: `${contentWidth}px`, height: `${containerHeight}px` }}>
       <div className="absolute" style={{ left: `${lineStart}px`, top: '50%', width: `${lineWidth}px`, height: '4px', backgroundColor: colors.timelineColor, transform: 'translateY(-50%)', borderRadius: '2px' }} />
       {markerElements}
       {sorted.map((activity, index) => {
         const x = positions[index];
         const isAbove = index % 2 === 0;
-        const boxTop = isAbove ? 'calc(50% - 130px)' : 'calc(50% + 30px)';
         return (
-          <div key={activity.id} className="absolute z-20" style={{ left: `${x}px`, top: boxTop, transform: 'translateX(-50%)' }}>
-            <div className="absolute left-1/2 w-px" style={{ top: isAbove ? '100%' : undefined, bottom: !isAbove ? '100%' : undefined, height: '100px', backgroundColor: colors.timelineColor, transform: 'translateX(-50%)' }} />
-            <button onClick={() => onSelect(activity)} className="rounded-xl shadow-lg px-6 py-3 min-w-[140px] text-center font-semibold hover:scale-105 hover:shadow-2xl transition-all duration-200" style={{ backgroundColor: colors.activityBoxBackground, color: colors.activityBoxText }}>{activity.name}</button>
+          <div
+            key={activity.id}
+            className="absolute z-20"
+            style={{
+              left: `${x}px`,
+              top: '50%',
+              transform: isAbove
+                ? `translateX(-50%) translateY(calc(-100% - ${verticalGap}px))`
+                : `translateX(-50%) translateY(${verticalGap}px)`,
+            }}
+          >
+            <div
+              className="absolute left-1/2 w-px"
+              style={{
+                top: isAbove ? '100%' : undefined,
+                bottom: !isAbove ? '100%' : undefined,
+                height: `${verticalGap}px`,
+                backgroundColor: colors.timelineColor,
+                transform: 'translateX(-50%)',
+              }}
+            />
+            <button
+              onClick={() => onSelect(activity)}
+              className="rounded-xl shadow-lg px-6 py-3 min-w-[140px] text-center font-semibold hover:scale-105 hover:shadow-2xl transition-all duration-200"
+              style={{ backgroundColor: colors.activityBoxBackground, color: colors.activityBoxText }}
+            >
+              {activity.name}
+            </button>
+          </div>
+        );
+      })}
+    </div>
+  );
+
+  const InlineContent = (
+    <div className="relative" style={{ width: `${contentWidth}px`, height: `${containerHeight}px` }}>
+      <div className="absolute" style={{ left: `${lineStart}px`, top: '50%', width: `${lineWidth}px`, height: '4px', backgroundColor: colors.timelineColor, transform: 'translateY(-50%)', borderRadius: '2px' }} />
+      {markerElements}
+      {sorted.map((activity, index) => {
+        const x = positions[index];
+        const isAbove = index % 2 === 0;
+        return (
+          <div
+            key={activity.id}
+            className="absolute z-20"
+            style={{
+              left: `${x}px`,
+              top: '50%',
+              transform: isAbove
+                ? `translateX(-50%) translateY(calc(-100% - ${verticalGap}px))` // bottom edge is verticalGap above the line
+                : `translateX(-50%) translateY(${verticalGap}px)`, // top edge is verticalGap below the line
+            }}
+          >
+            <div
+              className="absolute left-1/2 w-px"
+              style={{
+                top: isAbove ? '100%' : undefined,
+                bottom: !isAbove ? '100%' : undefined,
+                height: `${verticalGap}px`,
+                backgroundColor: colors.timelineColor,
+                transform: 'translateX(-50%)',
+              }}
+            />
+            <button
+              onClick={() => onSelect(activity)}
+              className="rounded-xl shadow-lg px-6 py-3 min-w-[140px] text-center font-semibold hover:scale-105 hover:shadow-2xl transition-all duration-200"
+              style={{ backgroundColor: colors.activityBoxBackground, color: colors.activityBoxText }}
+            >
+              {activity.name}
+            </button>
           </div>
         );
       })}
@@ -131,12 +184,12 @@ export default function Timeline({ activities, onSelect, layout }: TimelineProps
 
   const content = layout === 'outline' ? OutlineContent : InlineContent;
 
-  if (mounted && (containerWidth > availableWidth)) {
-    // Enable horizontal scroll when too wide
+  if (needsScroll) {
+    // Enable horizontal scroll when too wide (only timeline section scrolls)
     return (
-      <div className="relative w-full">
+      <div ref={containerRef} className="relative w-full">
         <div className="overflow-x-auto pb-4" style={{ scrollbarColor: `${colors.timelineColor} transparent` }}>
-          <div style={{ width: `${naturalContainerWidth}px` }}>
+          <div style={{ width: `${contentWidth}px` }}>
             {content}
           </div>
         </div>
@@ -150,7 +203,7 @@ export default function Timeline({ activities, onSelect, layout }: TimelineProps
   }
 
   return (
-    <div className="relative w-full" style={{ maxWidth: '100%' }}>
+    <div ref={containerRef} className="relative w-full" style={{ maxWidth: '100%' }}>
       {content}
     </div>
   );
