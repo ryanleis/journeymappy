@@ -1,4 +1,27 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Journey Timeline (Next.js)
+
+This is a Next.js App Router project for building and sharing visual timelines.
+
+## One-line Install
+
+On macOS/zsh:
+
+```bash
+chmod +x scripts/install.sh && scripts/install.sh
+```
+
+This will:
+- Ensure `.env` has `DATABASE_URL="file:./dev.db"`
+- Install npm dependencies
+- Run Prisma migrate (or generate if already migrated)
+
+Then start the dev server:
+
+```bash
+npm run dev
+```
+
+Open http://localhost:3000.
 
 ## Getting Started
 
@@ -11,6 +34,8 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 npm install
 ```
 
+No extra configuration is required for PDF (jspdf), PPTX (pptxgenjs), image export (html-to-image), or CSV/Excel imports (papaparse/xlsx); these are installed via npm.
+
 ### 2) Database setup (Prisma + SQLite)
 
 This project uses Prisma ORM with a local SQLite database for storing timelines and activities.
@@ -21,18 +46,26 @@ This project uses Prisma ORM with a local SQLite database for storing timelines 
 DATABASE_URL="file:./dev.db"
 ```
 
-- Generate the SQLite DB and Prisma Client:
+- Create the SQLite DB and generate the Prisma Client:
 
 ```bash
 npx prisma migrate dev --name init
 ```
 
-This will create `dev.db` and generate the Prisma Client in `src/generated/prisma`.
+This will create `dev.db` and generate the Prisma Client.
 
 - Optional: open Prisma Studio to inspect data
 
 ```bash
 npx prisma studio
+```
+
+If you pull new schema changes later, run:
+
+```bash
+npx prisma migrate dev --name <change>
+# or if no new migrations are needed
+npx prisma generate
 ```
 
 ### 3) Run the development server
@@ -41,35 +74,50 @@ npx prisma studio
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Open http://localhost:3000.
 
-### Notes
+## Features
 
-- API endpoints live under `src/app/api/timelines/route.ts`:
-  - `GET /api/timelines` – list timelines with activities
-  - `POST /api/timelines` – create timeline with activities snapshot
-  - `PUT /api/timelines` – update timeline and replace activities snapshot
-  - `DELETE /api/timelines?id=...` – delete a timeline
-- Prisma schema is in `prisma/schema.prisma`.
-- If you change the schema, run another migration:
+- Save and manage multiple timelines (Name + Last Modified)
+- Two layouts: inline and outline
+- Smart placement of activity boxes with collision avoidance and scroll-on-overflow
+- Display Mode (press F to open, ESC to close)
+- iOS-like styling with theming
 
-```bash
-npx prisma migrate dev --name <change>
-```
+### Share & Export (Share icon menu)
+- Export to PDF (configurable layouts)
+- Export to PowerPoint (PPTX) with timeline line, markers, connectors, and rounded activity boxes
+- Export as PNG or JPG (captures the on-page timeline)
+- Download as JSON, or generate a shareable link
 
-- To switch to Postgres later, update `DATABASE_URL` and `datasource` in `prisma/schema.prisma`, then run a migration.
+### Import Activities (Import icon menu)
+- Import from CSV or Excel (.xlsx/.xls)
+- Import from JSON:
+  - Either an array of activities, or
+  - A Share export JSON containing an `activities` array
+- Colors/themes in a Share JSON are auto-applied on import
+- CSV template download provided
 
-## Learn More
+## API & Schema
 
-To learn more about Next.js, take a look at the following resources:
+- API routes: `src/app/api/timelines/route.ts`
+  - GET /api/timelines – list timelines with activities
+  - POST /api/timelines – create a timeline with activities snapshot
+  - PUT /api/timelines – update timeline and replace activities snapshot
+  - DELETE /api/timelines?id=... – delete a timeline
+- Prisma schema: `prisma/schema.prisma`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Shortcuts
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- F – Open Display Mode
+- ESC – Exit Display Mode
 
-## Deploy on Vercel
+## Troubleshooting
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Prisma client errors after pulling changes:
+  - Run `npx prisma generate` (or `npx prisma migrate dev` if schema changed)
+- Image export captures the current timeline region; ensure the timeline is visible on the page.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Deploy
+
+Follow the Next.js deployment docs for your target platform. SQLite is file-based; for hosted environments consider switching to Postgres and updating `DATABASE_URL` accordingly, then run a migration.
