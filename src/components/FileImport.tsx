@@ -19,7 +19,7 @@ type ImportPreview = {
 };
 
 export default function FileImport({ onImport }: FileImportProps) {
-  const { colors } = useColors();
+  const { colors, setColors } = useColors();
   const [isOpen, setIsOpen] = useState(false);
   const [previewData, setPreviewData] = useState<ImportPreview[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -111,6 +111,29 @@ export default function FileImport({ onImport }: FileImportProps) {
     });
   };
 
+  const parseJSON = async (file: File): Promise<{ activities: any[]; colors?: any }> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const text = e.target?.result as string;
+          const data = JSON.parse(text);
+          if (Array.isArray(data)) {
+            resolve({ activities: data });
+          } else if (data && Array.isArray(data.activities)) {
+            resolve({ activities: data.activities, colors: data.colors });
+          } else {
+            reject(new Error('Unsupported JSON structure. Expected an array of activities or an object with an "activities" array.'));
+          }
+        } catch (error) {
+          reject(error);
+        }
+      };
+      reader.onerror = reject;
+      reader.readAsText(file);
+    });
+  };
+
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -118,13 +141,18 @@ export default function FileImport({ onImport }: FileImportProps) {
     setIsLoading(true);
     try {
       let data: any[] = [];
+      let importedColors: any | undefined;
       
       if (file.name.endsWith('.csv')) {
         data = await parseCSV(file);
       } else if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
         data = await parseExcel(file);
+      } else if (file.name.endsWith('.json')) {
+        const parsed = await parseJSON(file);
+        data = parsed.activities;
+        importedColors = parsed.colors;
       } else {
-        throw new Error('Unsupported file format. Please upload a CSV or Excel file.');
+        throw new Error('Unsupported file format. Please upload a CSV, Excel, or JSON file.');
       }
 
       // Map column names to expected format
@@ -144,6 +172,20 @@ export default function FileImport({ onImport }: FileImportProps) {
       // Validate and create preview
       const preview = mappedData.map(validateActivity);
       setPreviewData(preview);
+
+      // If Share export contained colors, auto-apply them
+      if (importedColors && typeof importedColors === 'object') {
+        try {
+          setColors({
+            timelineColor: importedColors.timelineColor || colors.timelineColor,
+            activityBoxBackground: importedColors.activityBoxBackground || colors.activityBoxBackground,
+            activityBoxText: importedColors.activityBoxText || colors.activityBoxText,
+            pageBackground: importedColors.pageBackground || colors.pageBackground,
+            modalBackground: importedColors.modalBackground || colors.modalBackground,
+            formBackground: importedColors.formBackground || colors.formBackground,
+          });
+        } catch {}
+      }
       
     } catch (error) {
       alert('Error reading file: ' + (error as Error).message);
@@ -259,7 +301,7 @@ export default function FileImport({ onImport }: FileImportProps) {
                   <input
                     ref={fileInputRef}
                     type="file"
-                    accept=".csv,.xlsx,.xls"
+                    accept=".csv,.xlsx,.xls,.json"
                     onChange={handleFileUpload}
                     className="w-full p-2 rounded-xl border"
                     style={{ backgroundColor: colors.formBackground, color: colors.activityBoxText, borderColor: colors.activityBoxText, caretColor: colors.activityBoxText }}
@@ -270,6 +312,9 @@ export default function FileImport({ onImport }: FileImportProps) {
                       Processing file...
                     </div>
                   )}
+                  <div className="text-xs opacity-75" style={{ color: colors.activityBoxText }}>
+                    Supports CSV, Excel (.xlsx, .xls), and JSON files. JSON may be either an array of activities or a Share export containing an <code>activities</code> array. If colors are present in the JSON, they will be applied automatically.
+                  </div>
                   <button
                     onClick={downloadTemplate}
                     className="text-sm underline"

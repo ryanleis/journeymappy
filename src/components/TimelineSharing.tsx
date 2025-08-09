@@ -4,6 +4,9 @@ import React, { useState } from 'react';
 import { useColors } from '../context/ColorContext';
 import { Activity } from '../app/page';
 import type { TimelineConfig } from './TimelineSetup';
+import PDFExport from './PDFExport';
+import PPTXExport from './PPTXExport';
+import * as htmlToImage from 'html-to-image';
 
 type TimelineData = {
   timeline: TimelineConfig;
@@ -15,9 +18,10 @@ type TimelineData = {
 type TimelineSharingProps = {
   currentTimeline: TimelineConfig | null;
   activities: Activity[];
+  layout?: any;
 };
 
-export default function TimelineSharing({ currentTimeline, activities }: TimelineSharingProps) {
+export default function TimelineSharing({ currentTimeline, activities, layout }: TimelineSharingProps) {
   const { colors } = useColors();
   const [isOpen, setIsOpen] = useState(false);
   const [shareLink, setShareLink] = useState('');
@@ -143,6 +147,52 @@ export default function TimelineSharing({ currentTimeline, activities }: Timelin
     }
   };
 
+  const downloadDataUrl = (dataUrl: string, filename: string) => {
+    const link = document.createElement('a');
+    link.href = dataUrl;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const exportImage = async (format: 'png' | 'jpeg') => {
+    try {
+      const node = document.getElementById('timeline-export-root') || document.getElementById('timeline-export-root-display');
+      if (!node) {
+        alert('Timeline not found to export as image');
+        return;
+      }
+      const fileBase = currentTimeline ? `${currentTimeline.name}_timeline` : 'journey_timeline';
+      const options = { backgroundColor: colors.pageBackground || '#ffffff', pixelRatio: 2 } as const;
+      if (format === 'png') {
+        const dataUrl = await htmlToImage.toPng(node, options);
+        downloadDataUrl(dataUrl, `${fileBase}.png`);
+      } else {
+        const dataUrl = await htmlToImage.toJpeg(node, { ...options, quality: 0.95 });
+        downloadDataUrl(dataUrl, `${fileBase}.jpg`);
+      }
+    } catch (e) {
+      alert('Failed to export image');
+    }
+  };
+
+  const exportCSV = () => {
+    const fileBase = currentTimeline ? `${currentTimeline.name}_timeline` : 'journey_timeline';
+    const headers = ['Name','Description','Start Date','End Date','Status'];
+    const rows = activities.map(a => [a.name, (a.description || '').replace(/\n/g, ' '), a.startDate, a.endDate, a.status]);
+    const csv = [headers, ...rows].map(r => r.map(v => `"${(v ?? '').toString().replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${fileBase}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   // Check for shared timeline on component mount
   React.useEffect(() => {
     loadSharedTimeline();
@@ -197,12 +247,36 @@ export default function TimelineSharing({ currentTimeline, activities }: Timelin
               <div>
                 <h4 className="font-medium mb-3" style={{ color: colors.activityBoxText }}>Export Timeline</h4>
                 <div className="space-y-2">
+                  <PDFExport activities={activities} timelineConfig={currentTimeline} embedInMenu />
+                  <PPTXExport activities={activities} timelineConfig={currentTimeline} layout={layout || 'inline'} embedInMenu />
+                  <button
+                    onClick={() => exportImage('png')}
+                    className="w-full p-2 rounded-2xl transition-colors text-sm"
+                    style={{ backgroundColor: colors.activityBoxBackground, color: colors.activityBoxText, border: `1px solid ${colors.activityBoxText}` }}
+                  >
+                    Export as PNG
+                  </button>
+                  <button
+                    onClick={() => exportImage('jpeg')}
+                    className="w-full p-2 rounded-2xl transition-colors text-sm"
+                    style={{ backgroundColor: colors.activityBoxBackground, color: colors.activityBoxText, border: `1px solid ${colors.activityBoxText}` }}
+                  >
+                    Export as JPG
+                  </button>
+                  <button
+                    onClick={exportCSV}
+                    className="w-full p-2 rounded-2xl transition-colors text-sm"
+                    style={{ backgroundColor: colors.activityBoxBackground, color: colors.activityBoxText, border: `1px solid ${colors.activityBoxText}` }}
+                  >
+                    Export Activities (CSV)
+                  </button>
                   <button
                     onClick={exportTimeline}
                     className="w-full p-2 rounded-2xl transition-colors text-sm"
                     style={{ 
-                      backgroundColor: colors.activityBoxText,
-                      color: colors.activityBoxBackground
+                      backgroundColor: colors.activityBoxBackground,
+                      color: colors.activityBoxText,
+                      border: `1px solid ${colors.activityBoxText}`
                     }}
                   >
                     Download as JSON

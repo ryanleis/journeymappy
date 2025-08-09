@@ -6,8 +6,6 @@ import ActivityModal from "../components/ActivityModal";
 import ActivityEditModal from "../components/ActivityEditModal";
 import ColorSettings from "../components/ColorSettings";
 import TimelineSetup, { TimelineConfig } from "../components/TimelineSetup";
-import PDFExport from "../components/PDFExport";
-import PPTXExport from "../components/PPTXExport";
 import ActivityFilter from "../components/ActivityFilter";
 import TimelineSharing from "../components/TimelineSharing";
 import FileImport from "../components/FileImport";
@@ -287,9 +285,8 @@ export default function HomePage() {
             <path d="M4 6a2 2 0 0 1 2-2h5v2H6v5H4V6zm10-2h4a2 2 0 0 1 2 2v4h-2V6h-4V4zM4 14h2v4h4v2H6a2 2 0 0 1-2-2v-4zm16 0v4a2 2 0 0 1-2 2h-4v-2h4v-4h2z" />
           </svg>
         </button>
-        <PDFExport activities={filteredActivities} timelineConfig={currentTimeline} />
-        <PPTXExport activities={filteredActivities} timelineConfig={currentTimeline} layout={timelineLayout} />
-        <TimelineSharing currentTimeline={currentTimeline} activities={activities} />
+        {/* Consolidated Share/Export menu */}
+        <TimelineSharing currentTimeline={currentTimeline} activities={activities} layout={timelineLayout} />
         <FileImport onImport={importActivities} />
         <StartOver onStartOver={handleStartOver} />
       </div>
@@ -311,7 +308,7 @@ export default function HomePage() {
       <div className="w-full max-w-2xl mb-10">
         <ActivityForm onAdd={addActivity} />
       </div>
-      <div className="w-full px-4 md:px-8" style={{ marginTop: '1.125in' }}>
+      <div id="timeline-export-root" className="w-full px-4 md:px-8" style={{ marginTop: '1.125in' }}>
         <Timeline activities={filteredActivities} onSelect={setSelectedActivity} layout={timelineLayout} />
       </div>
       {selectedActivity && (
@@ -349,7 +346,7 @@ export default function HomePage() {
               </div>
             </div>
             <div className="flex-1 w-full overflow-hidden p-4">
-              <div className="w-full h-full" style={{ marginTop: '2in' }}>
+              <div id="timeline-export-root-display" className="w-full h-full" style={{ marginTop: '2in' }}>
                 <Timeline activities={filteredActivities} onSelect={setSelectedActivity} layout={timelineLayout} />
               </div>
             </div>

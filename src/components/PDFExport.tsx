@@ -8,6 +8,8 @@ import type { TimelineConfig } from './TimelineSetup';
 type PDFExportProps = {
   activities: Activity[];
   timelineConfig: TimelineConfig | null;
+  // When true, render a full-width menu button instead of an icon button
+  embedInMenu?: boolean;
 };
 
 type PDFOptions = {
@@ -20,7 +22,7 @@ type PDFOptions = {
   includeFooter: boolean;
 };
 
-export default function PDFExport({ activities, timelineConfig }: PDFExportProps) {
+export default function PDFExport({ activities, timelineConfig, embedInMenu = false }: PDFExportProps) {
   const { colors } = useColors();
   const [isOpen, setIsOpen] = useState(false);
   const [options, setOptions] = useState<PDFOptions>({
@@ -199,31 +201,45 @@ export default function PDFExport({ activities, timelineConfig }: PDFExportProps
 
   return (
     <>
-      <button
-        onClick={() => setIsOpen(true)}
-        className="rounded-2xl p-3 shadow-sm hover:shadow-md transition"
-        style={{ 
-          backgroundColor: colors.activityBoxBackground,
-          color: colors.activityBoxText,
-          border: `1px solid ${colors.activityBoxText}`
-        }}
-        title="Export to PDF"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-6 w-6"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
+      {embedInMenu ? (
+        <button
+          onClick={() => setIsOpen(true)}
+          className="w-full p-2 rounded-2xl transition-colors text-sm"
+          style={{ 
+            backgroundColor: colors.activityBoxBackground,
+            color: colors.activityBoxText,
+            border: `1px solid ${colors.activityBoxText}`
+          }}
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-          />
-        </svg>
-      </button>
+          Export to PDF
+        </button>
+      ) : (
+        <button
+          onClick={() => setIsOpen(true)}
+          className="rounded-2xl p-3 shadow-sm hover:shadow-md transition"
+          style={{ 
+            backgroundColor: colors.activityBoxBackground,
+            color: colors.activityBoxText,
+            border: `1px solid ${colors.activityBoxText}`
+          }}
+          title="Export to PDF"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+            />
+          </svg>
+        </button>
+      )}
 
       {isOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
@@ -247,7 +263,7 @@ export default function PDFExport({ activities, timelineConfig }: PDFExportProps
                 <label className="block text-sm font-medium mb-2" style={{ color: colors.activityBoxText }}>Layout</label>
                 <select
                   value={options.layout}
-                  onChange={(e) => setOptions({ ...options, layout: e.target.value as any })}
+                  onChange={(e) => setOptions({ ...options, layout: (e.target as HTMLSelectElement).value as any })}
                   className="w-full rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="list">List</option>
@@ -261,7 +277,7 @@ export default function PDFExport({ activities, timelineConfig }: PDFExportProps
                 <label className="block text-sm font-medium mb-2" style={{ color: colors.activityBoxText }}>Font Size</label>
                 <select
                   value={options.fontSize}
-                  onChange={(e) => setOptions({ ...options, fontSize: e.target.value as any })}
+                  onChange={(e) => setOptions({ ...options, fontSize: (e.target as HTMLSelectElement).value as any })}
                   className="w-full rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="small">Small</option>
@@ -285,7 +301,7 @@ export default function PDFExport({ activities, timelineConfig }: PDFExportProps
                       <input
                         type="checkbox"
                         checked={options[key as keyof PDFOptions] as boolean}
-                        onChange={(e) => setOptions({ ...options, [key]: e.target.checked })}
+                        onChange={(e) => setOptions({ ...options, [key]: (e.target as HTMLInputElement).checked })}
                         className="mr-2"
                       />
                       <span className="text-sm" style={{ color: colors.activityBoxText }}>{label}</span>

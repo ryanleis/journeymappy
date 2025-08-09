@@ -11,6 +11,8 @@ interface PPTXExportProps {
   activities: Activity[];
   timelineConfig: TimelineConfig | null;
   layout: TimelineLayout;
+  // When true, render a full-width menu button instead of an icon button
+  embedInMenu?: boolean;
 }
 
 function toHex(color: string) {
@@ -20,7 +22,7 @@ function toHex(color: string) {
   return `#${base}`;
 }
 
-export default function PPTXExport({ activities, timelineConfig, layout }: PPTXExportProps) {
+export default function PPTXExport({ activities, timelineConfig, layout, embedInMenu = false }: PPTXExportProps) {
   const { colors } = useColors();
 
   const exportPptx = async () => {
@@ -129,15 +131,31 @@ export default function PPTXExport({ activities, timelineConfig, layout }: PPTXE
   };
 
   return (
-    <button
-      onClick={exportPptx}
-      className="rounded-2xl p-3 shadow-sm hover:shadow-md transition"
-      style={{ backgroundColor: colors.activityBoxBackground, color: colors.activityBoxText, border: `1px solid ${colors.activityBoxText}` }}
-      title="Export to PowerPoint (PPTX). You can open this in Google Slides."
-    >
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M6 3a2 2 0 0 0-2 2v14.005A1.995 1.995 0 0 0 5.995 21H18a2 2 0 0 0 2-2V9l-6-6H6zm7 1.5V9h4.5L13 4.5zM8.75 12a3.25 3.25 0 1 1 0 6.5H7v-6.5h1.75zm0 1.5H8.5V17h.25a1.75 1.75 0 0 0 0-3.5z" />
-      </svg>
-    </button>
+    <>
+      {embedInMenu ? (
+        <button
+          onClick={exportPptx}
+          className="w-full p-2 rounded-2xl transition-colors text-sm"
+          style={{ 
+            backgroundColor: colors.activityBoxBackground,
+            color: colors.activityBoxText,
+            border: `1px solid ${colors.activityBoxText}`
+          }}
+        >
+          Export to PowerPoint (PPTX)
+        </button>
+      ) : (
+        <button
+          onClick={exportPptx}
+          className="rounded-2xl p-3 shadow-sm hover:shadow-md transition"
+          style={{ backgroundColor: colors.activityBoxBackground, color: colors.activityBoxText, border: `1px solid ${colors.activityBoxText}` }}
+          title="Export to PowerPoint (PPTX). You can open this in Google Slides."
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M6 3a2 2 0 0 0-2 2v14.005A1.995 1.995 0 0 0 5.995 21H18a2 2 0 0 0 2-2V9l-6-6H6zm7 1.5V9h4.5L13 4.5zM8.75 12a3.25 3.25 0 1 1 0 6.5H7v-6.5h1.75zm0 1.5H8.5V17h.25a1.75 1.75 0 0 0 0-3.5z" />
+          </svg>
+        </button>
+      )}
+    </>
   );
 }
