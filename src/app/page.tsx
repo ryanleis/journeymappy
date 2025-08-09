@@ -257,7 +257,7 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen flex flex-col items-center py-10" style={{ backgroundColor: colors.pageBackground }}>
-      <h1 className="text-4xl font-bold mb-8 text-gray-900">Journey Timeline</h1>
+      <h1 className="text-4xl font-bold mb-8" style={{ color: colors.activityBoxText }}>Journey Timeline</h1>
       <div className="flex gap-4 mb-6">
         <TimelineSetup
           onSave={saveTimeline}
@@ -269,16 +269,16 @@ export default function HomePage() {
         />
         <button
           onClick={() => setTimelineManagerOpen(true)}
-          className="rounded-lg p-3 shadow-lg hover:shadow-xl transition-shadow"
-          style={{ backgroundColor: colors.activityBoxBackground, color: colors.activityBoxText }}
+          className="rounded-2xl p-3 shadow-sm hover:shadow-md transition"
+          style={{ backgroundColor: colors.activityBoxBackground, color: colors.activityBoxText, border: `1px solid ${colors.activityBoxText}` }}
           title="Manage Timelines"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h8m-8 6h16" /></svg>
         </button>
         <button
           onClick={() => setDisplayModeOpen(true)}
-          className="rounded-lg p-3 shadow-lg hover:shadow-xl transition-shadow"
-          style={{ backgroundColor: colors.activityBoxBackground, color: colors.activityBoxText }}
+          className="rounded-2xl p-3 shadow-sm hover:shadow-md transition"
+          style={{ backgroundColor: colors.activityBoxBackground, color: colors.activityBoxText, border: `1px solid ${colors.activityBoxText}` }}
           title="Open Display Mode (Press F)"
           aria-label="Open Display Mode (Press F)"
         >
@@ -293,7 +293,7 @@ export default function HomePage() {
       </div>
 
       {currentTimeline && (
-        <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: colors.modalBackground }}>
+        <div className="mb-6 p-4 rounded-xl" style={{ backgroundColor: colors.modalBackground, border: `1px solid ${colors.activityBoxText}` }}>
           <h2 className="text-xl font-semibold mb-2" style={{ color: colors.activityBoxText }}>
             {currentTimeline.name}
           </h2>
@@ -339,7 +339,7 @@ export default function HomePage() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setDisplayModeOpen(false)}
-                  className="rounded px-3 py-2"
+                  className="rounded-full px-3 py-2"
                   style={{ backgroundColor: colors.activityBoxBackground, color: colors.activityBoxText, border: `1px solid ${colors.timelineColor}` }}
                 >
                   Close

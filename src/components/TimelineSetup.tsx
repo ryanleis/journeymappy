@@ -86,10 +86,11 @@ export default function TimelineSetup({ onSave, onLoad, onDelete, onUpdate, save
     <div className="fixed top-4 right-4 z-40">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="rounded-lg p-3 shadow-lg hover:shadow-xl transition-shadow"
+        className="rounded-2xl p-3 shadow-sm hover:shadow-md transition"
         style={{ 
           backgroundColor: colors.activityBoxBackground,
-          color: colors.activityBoxText 
+          color: colors.activityBoxText,
+          border: `1px solid ${colors.activityBoxText}`
         }}
         title="Timeline Setup"
       >
@@ -117,8 +118,8 @@ export default function TimelineSetup({ onSave, onLoad, onDelete, onUpdate, save
 
       {isOpen && (
         <div 
-          className="absolute top-16 right-0 rounded-xl shadow-2xl p-6 w-96 animate-slideDown"
-          style={{ backgroundColor: colors.modalBackground }}
+          className="absolute top-16 right-0 rounded-2xl shadow-2xl p-6 w-96 animate-slideDown"
+          style={{ backgroundColor: colors.modalBackground, border: `1px solid ${colors.activityBoxText}` }}
         >
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-lg font-semibold" style={{ color: colors.activityBoxText }}>Timeline Setup</h3>
@@ -132,7 +133,7 @@ export default function TimelineSetup({ onSave, onLoad, onDelete, onUpdate, save
 
           {/* Current Timeline Info */}
           {currentTimeline && (
-            <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: colors.activityBoxBackground }}>
+            <div className="mb-6 p-4 rounded-xl" style={{ backgroundColor: colors.activityBoxBackground }}>
               <h4 className="font-medium mb-2" style={{ color: colors.activityBoxText }}>Current Timeline</h4>
               <p className="text-sm" style={{ color: colors.activityBoxText }}>Name: {currentTimeline.name}</p>
               <p className="text-sm" style={{ color: colors.activityBoxText }}>
@@ -161,7 +162,7 @@ export default function TimelineSetup({ onSave, onLoad, onDelete, onUpdate, save
                 type="text"
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
-                className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-xl border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 style={{ backgroundColor: colors.formBackground, color: colors.activityBoxText, borderColor: colors.activityBoxText, caretColor: colors.activityBoxText }}
                 required
               />
@@ -173,7 +174,7 @@ export default function TimelineSetup({ onSave, onLoad, onDelete, onUpdate, save
                   type="date"
                   value={form.startDate}
                   onChange={(e) => setForm({ ...form, startDate: e.target.value })}
-                  className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full rounded-xl border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   style={{ backgroundColor: colors.formBackground, color: colors.activityBoxText, borderColor: colors.activityBoxText, caretColor: colors.activityBoxText }}
                   required
                 />
@@ -184,7 +185,7 @@ export default function TimelineSetup({ onSave, onLoad, onDelete, onUpdate, save
                   type="date"
                   value={form.endDate}
                   onChange={(e) => setForm({ ...form, endDate: e.target.value })}
-                  className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full rounded-xl border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   style={{ backgroundColor: colors.formBackground, color: colors.activityBoxText, borderColor: colors.activityBoxText, caretColor: colors.activityBoxText }}
                   required
                 />
@@ -192,7 +193,7 @@ export default function TimelineSetup({ onSave, onLoad, onDelete, onUpdate, save
             </div>
             <button
               type="submit"
-              className="w-full p-2 rounded-lg transition-colors text-sm"
+              className="w-full p-2 rounded-2xl transition-colors text-sm"
               style={{ 
                 backgroundColor: colors.activityBoxText,
                 color: colors.activityBoxBackground
@@ -214,7 +215,7 @@ export default function TimelineSetup({ onSave, onLoad, onDelete, onUpdate, save
                   >
                     <button
                       onClick={() => onLoad(timeline)}
-                      className="w-full p-3 rounded-lg text-left transition-colors"
+                      className="w-full p-3 rounded-2xl text-left transition-colors"
                       style={{ 
                         backgroundColor: currentTimeline?.id === timeline.id ? colors.activityBoxText : colors.activityBoxBackground,
                         color: currentTimeline?.id === timeline.id ? colors.activityBoxBackground : colors.activityBoxText,

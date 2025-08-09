@@ -152,10 +152,11 @@ export default function TimelineSharing({ currentTimeline, activities }: Timelin
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="rounded-lg p-3 shadow-lg hover:shadow-xl transition-shadow"
+        className="rounded-2xl p-3 shadow-sm hover:shadow-md transition"
         style={{ 
           backgroundColor: colors.activityBoxBackground,
-          color: colors.activityBoxText 
+          color: colors.activityBoxText,
+          border: `1px solid ${colors.activityBoxText}`
         }}
         title="Share Timeline"
       >
@@ -179,7 +180,7 @@ export default function TimelineSharing({ currentTimeline, activities }: Timelin
         <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
           <div 
             className="rounded-2xl shadow-2xl p-8 w-96 max-h-[80vh] overflow-y-auto animate-fadeIn"
-            style={{ backgroundColor: colors.modalBackground }}
+            style={{ backgroundColor: colors.modalBackground, border: `1px solid ${colors.activityBoxText}` }}
           >
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-lg font-semibold" style={{ color: colors.activityBoxText }}>Share Timeline</h3>
@@ -198,7 +199,7 @@ export default function TimelineSharing({ currentTimeline, activities }: Timelin
                 <div className="space-y-2">
                   <button
                     onClick={exportTimeline}
-                    className="w-full p-2 rounded-lg transition-colors text-sm"
+                    className="w-full p-2 rounded-2xl transition-colors text-sm"
                     style={{ 
                       backgroundColor: colors.activityBoxText,
                       color: colors.activityBoxBackground
@@ -208,7 +209,7 @@ export default function TimelineSharing({ currentTimeline, activities }: Timelin
                   </button>
                   <button
                     onClick={generateShareLink}
-                    className="w-full p-2 rounded-lg transition-colors text-sm"
+                    className="w-full p-2 rounded-2xl transition-colors text-sm"
                     style={{ 
                       backgroundColor: colors.activityBoxBackground,
                       color: colors.activityBoxText,
@@ -229,12 +230,12 @@ export default function TimelineSharing({ currentTimeline, activities }: Timelin
                       type="text"
                       value={shareLink}
                       readOnly
-                      className="w-full rounded-md border px-3 py-2 text-sm"
+                      className="w-full rounded-xl border px-3 py-2 text-sm"
                       style={{ backgroundColor: colors.formBackground, color: colors.activityBoxText, borderColor: colors.activityBoxText }}
                     />
                     <button
                       onClick={copyShareLink}
-                      className="w-full p-2 rounded-lg transition-colors text-sm"
+                      className="w-full p-2 rounded-2xl transition-colors text-sm"
                       style={{ 
                         backgroundColor: colors.activityBoxText,
                         color: colors.activityBoxBackground
@@ -255,12 +256,12 @@ export default function TimelineSharing({ currentTimeline, activities }: Timelin
                     onChange={(e) => setImportData(e.target.value)}
                     placeholder="Paste timeline JSON data here..."
                     rows={4}
-                    className="w-full rounded-md border px-3 py-2 text-sm"
+                    className="w-full rounded-xl border px-3 py-2 text-sm"
                     style={{ backgroundColor: colors.formBackground, color: colors.activityBoxText, borderColor: colors.activityBoxText, caretColor: colors.activityBoxText }}
                   />
                   <button
                     onClick={importTimeline}
-                    className="w-full p-2 rounded-lg transition-colors text-sm"
+                    className="w-full p-2 rounded-2xl transition-colors text-sm"
                     style={{ 
                       backgroundColor: colors.activityBoxText,
                       color: colors.activityBoxBackground

@@ -22,10 +22,11 @@ export default function StartOver({ onStartOver }: StartOverProps) {
     <div className="fixed top-4 left-36 z-40">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="rounded-lg p-3 shadow-lg hover:shadow-xl transition-shadow"
+        className="rounded-2xl p-3 shadow-sm hover:shadow-md transition"
         style={{ 
           backgroundColor: colors.activityBoxBackground,
-          color: colors.activityBoxText 
+          color: colors.activityBoxText,
+          border: `1px solid ${colors.activityBoxText}`
         }}
         title="Start Over"
       >
@@ -47,8 +48,8 @@ export default function StartOver({ onStartOver }: StartOverProps) {
 
       {isOpen && (
         <div 
-          className="absolute top-16 left-0 rounded-xl shadow-2xl p-6 w-80 animate-slideDown"
-          style={{ backgroundColor: colors.modalBackground }}
+          className="absolute top-16 left-0 rounded-2xl shadow-2xl p-6 w-80 animate-slideDown"
+          style={{ backgroundColor: colors.modalBackground, border: `1px solid ${colors.activityBoxText}` }}
         >
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-lg font-semibold" style={{ color: colors.activityBoxText }}>Start Over</h3>
@@ -61,7 +62,7 @@ export default function StartOver({ onStartOver }: StartOverProps) {
           </div>
 
           <div className="space-y-4">
-            <div className="p-4 rounded-lg" style={{ backgroundColor: colors.activityBoxBackground }}>
+            <div className="p-4 rounded-xl" style={{ backgroundColor: colors.activityBoxBackground }}>
               <h4 className="font-medium mb-2" style={{ color: colors.activityBoxText }}>⚠️ Warning</h4>
               <p className="text-sm" style={{ color: colors.activityBoxText }}>
                 Starting over will permanently delete:
@@ -78,7 +79,7 @@ export default function StartOver({ onStartOver }: StartOverProps) {
             <div className="flex gap-3">
               <button
                 onClick={handleStartOver}
-                className="flex-1 p-2 rounded-lg transition-colors text-sm"
+                className="flex-1 p-2 rounded-2xl transition-colors text-sm shadow-sm"
                 style={{ 
                   backgroundColor: '#ef4444',
                   color: 'white'
@@ -88,7 +89,7 @@ export default function StartOver({ onStartOver }: StartOverProps) {
               </button>
               <button
                 onClick={() => setIsOpen(false)}
-                className="p-2 rounded-lg transition-colors text-sm"
+                className="p-2 rounded-2xl transition-colors text-sm"
                 style={{ 
                   backgroundColor: colors.activityBoxBackground,
                   color: colors.activityBoxText,
@@ -113,4 +114,4 @@ export default function StartOver({ onStartOver }: StartOverProps) {
       )}
     </div>
   );
-} 
+}

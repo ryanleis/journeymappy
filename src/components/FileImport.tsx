@@ -211,10 +211,11 @@ export default function FileImport({ onImport }: FileImportProps) {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="rounded-lg p-3 shadow-lg hover:shadow-xl transition-shadow"
+        className="rounded-2xl p-3 shadow-sm hover:shadow-md transition"
         style={{ 
           backgroundColor: colors.activityBoxBackground,
-          color: colors.activityBoxText 
+          color: colors.activityBoxText,
+          border: `1px solid ${colors.activityBoxText}`
         }}
         title="Import Activities"
       >
@@ -238,7 +239,7 @@ export default function FileImport({ onImport }: FileImportProps) {
         <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
           <div 
             className="rounded-2xl shadow-2xl p-8 w-[800px] max-h-[80vh] overflow-y-auto animate-fadeIn"
-            style={{ backgroundColor: colors.modalBackground }}
+            style={{ backgroundColor: colors.modalBackground, border: `1px solid ${colors.activityBoxText}` }}
           >
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-lg font-semibold" style={{ color: colors.activityBoxText }}>Import Activities</h3>
@@ -260,7 +261,7 @@ export default function FileImport({ onImport }: FileImportProps) {
                     type="file"
                     accept=".csv,.xlsx,.xls"
                     onChange={handleFileUpload}
-                    className="w-full p-2 rounded-lg border"
+                    className="w-full p-2 rounded-xl border"
                     style={{ backgroundColor: colors.formBackground, color: colors.activityBoxText, borderColor: colors.activityBoxText, caretColor: colors.activityBoxText }}
                     disabled={isLoading}
                   />
@@ -285,7 +286,7 @@ export default function FileImport({ onImport }: FileImportProps) {
                   <h4 className="font-medium mb-3" style={{ color: colors.activityBoxText }}>
                     Preview ({previewData.filter(item => item.isValid).length} valid, {previewData.filter(item => !item.isValid).length} invalid)
                   </h4>
-                  <div className="max-h-60 overflow-y-auto border rounded-lg">
+                  <div className="max-h-60 overflow-y-auto border rounded-xl" style={{ borderColor: colors.activityBoxText }}>
                     <table className="w-full text-sm">
                       <thead className="sticky top-0" style={{ backgroundColor: colors.activityBoxBackground }}>
                         <tr>
@@ -332,7 +333,7 @@ export default function FileImport({ onImport }: FileImportProps) {
                   <button
                     onClick={handleImport}
                     disabled={previewData.filter(item => item.isValid).length === 0}
-                    className="flex-1 p-2 rounded-lg transition-colors text-sm disabled:opacity-50"
+                    className="flex-1 p-2 rounded-2xl transition-colors text-sm disabled:opacity-50"
                     style={{ 
                       backgroundColor: colors.activityBoxText,
                       color: colors.activityBoxBackground
@@ -342,7 +343,7 @@ export default function FileImport({ onImport }: FileImportProps) {
                   </button>
                   <button
                     onClick={() => setIsOpen(false)}
-                    className="p-2 rounded-lg transition-colors text-sm"
+                    className="p-2 rounded-2xl transition-colors text-sm"
                     style={{ 
                       backgroundColor: colors.activityBoxBackground,
                       color: colors.activityBoxText,

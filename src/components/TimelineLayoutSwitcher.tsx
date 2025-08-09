@@ -33,10 +33,11 @@ export default function TimelineLayoutSwitcher({ currentLayout, onLayoutChange }
     <div className="fixed top-4 left-20 z-40">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="rounded-lg p-3 shadow-lg hover:shadow-xl transition-shadow"
+        className="rounded-2xl p-3 shadow-sm hover:shadow-md transition"
         style={{ 
           backgroundColor: colors.activityBoxBackground,
-          color: colors.activityBoxText 
+          color: colors.activityBoxText,
+          border: `1px solid ${colors.activityBoxText}`
         }}
         title="Timeline Layout"
       >
@@ -58,8 +59,8 @@ export default function TimelineLayoutSwitcher({ currentLayout, onLayoutChange }
 
       {isOpen && (
         <div 
-          className="absolute top-16 left-0 rounded-xl shadow-2xl p-6 w-80 animate-slideDown"
-          style={{ backgroundColor: colors.modalBackground }}
+          className="absolute top-16 left-0 rounded-2xl shadow-2xl p-6 w-80 animate-slideDown"
+          style={{ backgroundColor: colors.modalBackground, border: `1px solid ${colors.activityBoxText}` }}
         >
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-lg font-semibold" style={{ color: colors.activityBoxText }}>Timeline Layout</h3>
@@ -79,7 +80,7 @@ export default function TimelineLayoutSwitcher({ currentLayout, onLayoutChange }
                   onLayoutChange(layout.id);
                   setIsOpen(false);
                 }}
-                className="w-full p-4 rounded-lg text-left transition-all"
+                className="w-full p-4 rounded-2xl text-left transition-all"
                 style={{ 
                   backgroundColor: currentLayout === layout.id ? colors.activityBoxText : colors.activityBoxBackground,
                   color: currentLayout === layout.id ? colors.activityBoxBackground : colors.activityBoxText,
@@ -111,4 +112,4 @@ export default function TimelineLayoutSwitcher({ currentLayout, onLayoutChange }
       )}
     </div>
   );
-} 
+}

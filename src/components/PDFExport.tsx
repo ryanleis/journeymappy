@@ -201,10 +201,11 @@ export default function PDFExport({ activities, timelineConfig }: PDFExportProps
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="rounded-lg p-3 shadow-lg hover:shadow-xl transition-shadow"
+        className="rounded-2xl p-3 shadow-sm hover:shadow-md transition"
         style={{ 
           backgroundColor: colors.activityBoxBackground,
-          color: colors.activityBoxText 
+          color: colors.activityBoxText,
+          border: `1px solid ${colors.activityBoxText}`
         }}
         title="Export to PDF"
       >
@@ -228,7 +229,7 @@ export default function PDFExport({ activities, timelineConfig }: PDFExportProps
         <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
           <div 
             className="rounded-2xl shadow-2xl p-8 w-96 animate-fadeIn"
-            style={{ backgroundColor: colors.modalBackground }}
+            style={{ backgroundColor: colors.modalBackground, border: `1px solid ${colors.activityBoxText}` }}
           >
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-lg font-semibold" style={{ color: colors.activityBoxText }}>PDF Export Options</h3>
@@ -247,7 +248,7 @@ export default function PDFExport({ activities, timelineConfig }: PDFExportProps
                 <select
                   value={options.layout}
                   onChange={(e) => setOptions({ ...options, layout: e.target.value as any })}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="list">List</option>
                   <option value="table">Table</option>
@@ -261,7 +262,7 @@ export default function PDFExport({ activities, timelineConfig }: PDFExportProps
                 <select
                   value={options.fontSize}
                   onChange={(e) => setOptions({ ...options, fontSize: e.target.value as any })}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="small">Small</option>
                   <option value="medium">Medium</option>
@@ -297,7 +298,7 @@ export default function PDFExport({ activities, timelineConfig }: PDFExportProps
             <div className="flex gap-3 mt-6">
               <button
                 onClick={exportToPDF}
-                className="flex-1 p-2 rounded-lg transition-colors text-sm"
+                className="flex-1 p-2 rounded-2xl transition-colors text-sm"
                 style={{ 
                   backgroundColor: colors.activityBoxText,
                   color: colors.activityBoxBackground
@@ -307,7 +308,7 @@ export default function PDFExport({ activities, timelineConfig }: PDFExportProps
               </button>
               <button
                 onClick={() => setIsOpen(false)}
-                className="p-2 rounded-lg transition-colors text-sm"
+                className="p-2 rounded-2xl transition-colors text-sm"
                 style={{ 
                   backgroundColor: colors.activityBoxBackground,
                   color: colors.activityBoxText,
@@ -332,4 +333,4 @@ export default function PDFExport({ activities, timelineConfig }: PDFExportProps
       )}
     </>
   );
-} 
+}

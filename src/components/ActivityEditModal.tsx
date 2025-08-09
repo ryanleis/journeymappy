@@ -63,7 +63,7 @@ export default function ActivityEditModal({ activity, onClose, onSave }: Activit
     <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
       <div 
         className="rounded-2xl shadow-2xl p-8 w-full max-w-md relative animate-fadeIn max-h-[90vh] overflow-y-auto"
-        style={{ backgroundColor: colors.modalBackground }}
+        style={{ backgroundColor: colors.modalBackground, border: `1px solid ${colors.activityBoxText}` }}
       >
         <button
           onClick={onClose}
@@ -87,11 +87,12 @@ export default function ActivityEditModal({ activity, onClose, onSave }: Activit
               name="name"
               value={formData.name}
               onChange={handleChange}
-              className="w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-3 rounded-xl border focus:outline-none focus:ring-2 focus:ring-blue-500"
               style={{ 
                 backgroundColor: colors.formBackground,
                 color: colors.activityBoxText,
-                borderColor: colors.activityBoxText
+                borderColor: colors.activityBoxText,
+                caretColor: colors.activityBoxText 
               }}
               placeholder="Enter activity name"
               required
@@ -107,11 +108,12 @@ export default function ActivityEditModal({ activity, onClose, onSave }: Activit
               value={formData.description}
               onChange={handleChange}
               rows={3}
-              className="w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+              className="w-full p-3 rounded-xl border focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
               style={{ 
                 backgroundColor: colors.formBackground,
                 color: colors.activityBoxText,
-                borderColor: colors.activityBoxText
+                borderColor: colors.activityBoxText,
+                caretColor: colors.activityBoxText 
               }}
               placeholder="Enter activity description (optional)"
             />
@@ -127,11 +129,12 @@ export default function ActivityEditModal({ activity, onClose, onSave }: Activit
                 name="startDate"
                 value={formData.startDate}
                 onChange={handleChange}
-                className="w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full p-3 rounded-xl border focus:outline-none focus:ring-2 focus:ring-blue-500"
                 style={{ 
                   backgroundColor: colors.formBackground,
                   color: colors.activityBoxText,
-                  borderColor: colors.activityBoxText
+                  borderColor: colors.activityBoxText,
+                  caretColor: colors.activityBoxText 
                 }}
                 required
               />
@@ -146,11 +149,12 @@ export default function ActivityEditModal({ activity, onClose, onSave }: Activit
                 name="endDate"
                 value={formData.endDate}
                 onChange={handleChange}
-                className="w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full p-3 rounded-xl border focus:outline-none focus:ring-2 focus:ring-blue-500"
                 style={{ 
                   backgroundColor: colors.formBackground,
                   color: colors.activityBoxText,
-                  borderColor: colors.activityBoxText
+                  borderColor: colors.activityBoxText,
+                  caretColor: colors.activityBoxText 
                 }}
                 required
               />
@@ -165,11 +169,11 @@ export default function ActivityEditModal({ activity, onClose, onSave }: Activit
               name="status"
               value={formData.status}
               onChange={handleChange}
-              className="w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-3 rounded-xl border focus:outline-none focus:ring-2 focus:ring-blue-500"
               style={{ 
                 backgroundColor: colors.formBackground,
                 color: colors.activityBoxText,
-                borderColor: colors.activityBoxText
+                borderColor: colors.activityBoxText 
               }}
             >
               <option value="Not Started">Not Started</option>
@@ -184,7 +188,7 @@ export default function ActivityEditModal({ activity, onClose, onSave }: Activit
           <div className="flex gap-3 pt-4">
             <button
               type="submit"
-              className="flex-1 p-3 rounded-lg transition-colors text-sm font-medium"
+              className="flex-1 p-3 rounded-full transition-colors text-sm font-medium"
               style={{ 
                 backgroundColor: '#10b981',
                 color: 'white'
@@ -195,7 +199,7 @@ export default function ActivityEditModal({ activity, onClose, onSave }: Activit
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 p-3 rounded-lg transition-colors text-sm font-medium"
+              className="flex-1 p-3 rounded-2xl transition-colors text-sm font-medium"
               style={{ 
                 backgroundColor: colors.activityBoxBackground,
                 color: colors.activityBoxText,
@@ -218,4 +222,4 @@ export default function ActivityEditModal({ activity, onClose, onSave }: Activit
       `}</style>
     </div>
   );
-} 
+}

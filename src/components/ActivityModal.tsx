@@ -27,8 +27,8 @@ export default function ActivityModal({ activity, onClose, onDelete, onEdit }: A
   return (
     <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
       <div 
-        className="rounded-2xl shadow-2xl p-8 w-full max-w-md relative animate-fadeIn"
-        style={{ backgroundColor: colors.modalBackground }}
+        className="rounded-2xl shadow-2xl p-8 w-full max-w-md relative animate-fadeIn max-h-[90vh] overflow-y-auto"
+        style={{ backgroundColor: colors.modalBackground, border: `1px solid ${colors.activityBoxText}` }}
       >
         <button
           onClick={onClose}
@@ -59,7 +59,7 @@ export default function ActivityModal({ activity, onClose, onDelete, onEdit }: A
         <div className="flex gap-3">
           <button
             onClick={handleEdit}
-            className="flex-1 p-3 rounded-lg transition-colors text-sm font-medium"
+            className="flex-1 p-3 rounded-2xl transition-colors text-sm font-medium shadow-sm"
             style={{ 
               backgroundColor: '#3b82f6',
               color: 'white'
@@ -69,7 +69,7 @@ export default function ActivityModal({ activity, onClose, onDelete, onEdit }: A
           </button>
           <button
             onClick={handleDelete}
-            className="flex-1 p-3 rounded-lg transition-colors text-sm font-medium"
+            className="flex-1 p-3 rounded-2xl transition-colors text-sm font-medium shadow-sm"
             style={{ 
               backgroundColor: '#ef4444',
               color: 'white'
@@ -80,7 +80,7 @@ export default function ActivityModal({ activity, onClose, onDelete, onEdit }: A
         </div>
         <button
           onClick={onClose}
-          className="w-full mt-3 p-3 rounded-lg transition-colors text-sm font-medium"
+          className="w-full mt-3 p-3 rounded-2xl transition-colors text-sm font-medium"
           style={{ 
             backgroundColor: colors.activityBoxBackground,
             color: colors.activityBoxText,
@@ -101,4 +101,4 @@ export default function ActivityModal({ activity, onClose, onDelete, onEdit }: A
       `}</style>
     </div>
   );
-} 
+}

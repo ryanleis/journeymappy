@@ -97,10 +97,11 @@ export default function ActivityFilter({ activities, currentTimeline, onFilterCh
     <div className="fixed top-4 left-4 z-40">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="rounded-lg p-3 shadow-lg hover:shadow-xl transition-shadow"
+        className="rounded-2xl p-3 shadow-sm hover:shadow-md transition"
         style={{ 
           backgroundColor: colors.activityBoxBackground,
-          color: colors.activityBoxText 
+          color: colors.activityBoxText,
+          border: `1px solid ${colors.activityBoxText}`
         }}
         title="Filter Activities"
       >
@@ -122,8 +123,8 @@ export default function ActivityFilter({ activities, currentTimeline, onFilterCh
 
       {isOpen && (
         <div 
-          className="absolute top-16 left-0 rounded-xl shadow-2xl p-6 w-80 animate-slideDown"
-          style={{ backgroundColor: colors.modalBackground }}
+          className="absolute top-16 left-0 rounded-2xl shadow-2xl p-6 w-80 animate-slideDown"
+          style={{ backgroundColor: colors.modalBackground, border: `1px solid ${colors.activityBoxText}` }}
         >
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-lg font-semibold" style={{ color: colors.activityBoxText }}>Filter Activities</h3>
@@ -143,7 +144,7 @@ export default function ActivityFilter({ activities, currentTimeline, onFilterCh
               value={filters.searchTerm}
               onChange={(e) => setFilters({ ...filters, searchTerm: e.target.value })}
               placeholder="Search activities..."
-              className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-xl border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               style={{ backgroundColor: colors.formBackground, color: colors.activityBoxText, borderColor: colors.activityBoxText, caretColor: colors.activityBoxText }}
             />
           </div>
@@ -154,7 +155,7 @@ export default function ActivityFilter({ activities, currentTimeline, onFilterCh
             <select
               value={filters.status}
               onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-              className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-xl border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               style={{ backgroundColor: colors.formBackground, color: colors.activityBoxText, borderColor: colors.activityBoxText }}
             >
               {statusOptions.map(status => (
@@ -171,7 +172,7 @@ export default function ActivityFilter({ activities, currentTimeline, onFilterCh
             <select
               value={filters.dateRange}
               onChange={(e) => setFilters({ ...filters, dateRange: e.target.value })}
-              className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-xl border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               style={{ backgroundColor: colors.formBackground, color: colors.activityBoxText, borderColor: colors.activityBoxText }}
             >
               {dateRangeOptions.map(option => (
@@ -185,7 +186,7 @@ export default function ActivityFilter({ activities, currentTimeline, onFilterCh
           {/* Clear Filters */}
           <button
             onClick={clearFilters}
-            className="w-full p-2 rounded-lg transition-colors text-sm"
+            className="w-full p-2 rounded-2xl transition-colors text-sm"
             style={{ 
               backgroundColor: colors.activityBoxBackground,
               color: colors.activityBoxText,
