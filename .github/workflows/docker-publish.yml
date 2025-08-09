@@ -1,0 +1,64 @@
+name: Build and Publish Docker Image
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract repository name (lowercase)
+        id: repo
+        run: |
+          REPO="${GITHUB_REPOSITORY##*/}"
+          echo "name=${REPO,,}" >> "$GITHUB_OUTPUT"
+
+      - name: Extract owner (lowercase)
+        id: owner
+        run: |
+          OWNER="${GITHUB_REPOSITORY_OWNER}"
+          echo "name=${OWNER,,}" >> "$GITHUB_OUTPUT"
+
+      - name: Set date tag
+        id: date
+        run: echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+
+      - name: Build Docker image
+        run: |
+          OWNER="${{ steps.owner.outputs.name }}"
+          REPO="${{ steps.repo.outputs.name }}"
+          DATE="${{ steps.date.outputs.date }}"
+          TITLE="$REPO - $DATE"
+          docker build \
+            --build-arg NEXT_TELEMETRY_DISABLED=1 \
+            --label "org.opencontainers.image.title=$TITLE" \
+            -t ghcr.io/$OWNER/$REPO:$DATE \
+            -t ghcr.io/$OWNER/$REPO:latest \
+            .
+
+      - name: Push Docker image
+        run: |
+          OWNER="${{ steps.owner.outputs.name }}"
+          REPO="${{ steps.repo.outputs.name }}"
+          DATE="${{ steps.date.outputs.date }}"
+          docker push ghcr.io/$OWNER/$REPO:$DATE
+          docker push ghcr.io/$OWNER/$REPO:latest
