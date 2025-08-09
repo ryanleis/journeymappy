@@ -103,7 +103,19 @@ export default function Timeline({ activities, onSelect, layout }: TimelineProps
 
   const OutlineContent = (
     <div className="relative" style={{ width: `${contentWidth}px`, height: `${containerHeight}px` }}>
-      <div className="absolute" style={{ left: `${lineStart}px`, top: '50%', width: `${lineWidth}px`, height: '2px', backgroundColor: colors.timelineColor, transform: 'translateY(-50%)', borderRadius: '1px' }} />
+      <div
+        className="absolute"
+        style={{
+          left: `${lineStart}px`,
+          top: '50%',
+          width: `${lineWidth}px`,
+          height: '2px',
+          backgroundColor: colors.timelineColor,
+          transform: 'translateY(-50%)',
+          borderRadius: '1px',
+          opacity: 0.85,
+        }}
+      />
       {markerElements}
       {sorted.map((activity, index) => {
         const x = positions[index];
@@ -128,12 +140,17 @@ export default function Timeline({ activities, onSelect, layout }: TimelineProps
                 height: `${verticalGap}px`,
                 backgroundColor: colors.timelineColor,
                 transform: 'translateX(-50%)',
+                opacity: 0.6,
               }}
             />
             <button
               onClick={() => onSelect(activity)}
-              className="rounded-2xl shadow-sm px-6 py-3 min-w-[140px] text-center font-semibold hover:shadow-md transition-all duration-200"
-              style={{ backgroundColor: colors.activityBoxBackground, color: colors.activityBoxText, border: '1px solid rgba(0,0,0,0.08)' }}
+              className="rounded-2xl shadow-sm px-5 py-2.5 min-w-[140px] text-center font-medium hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
+              style={{
+                backgroundColor: colors.activityBoxBackground,
+                color: colors.activityBoxText,
+                border: `1px solid ${colors.timelineColor}`,
+              }}
             >
               {activity.name}
             </button>
@@ -145,7 +162,19 @@ export default function Timeline({ activities, onSelect, layout }: TimelineProps
 
   const InlineContent = (
     <div className="relative" style={{ width: `${contentWidth}px`, height: `${containerHeight}px` }}>
-      <div className="absolute" style={{ left: `${lineStart}px`, top: '50%', width: `${lineWidth}px`, height: '2px', backgroundColor: colors.timelineColor, transform: 'translateY(-50%)', borderRadius: '1px' }} />
+      <div
+        className="absolute"
+        style={{
+          left: `${lineStart}px`,
+          top: '50%',
+          width: `${lineWidth}px`,
+          height: '2px',
+          backgroundColor: colors.timelineColor,
+          transform: 'translateY(-50%)',
+          borderRadius: '1px',
+          opacity: 0.85,
+        }}
+      />
       {markerElements}
       {sorted.map((activity, index) => {
         const x = positions[index];
@@ -170,12 +199,17 @@ export default function Timeline({ activities, onSelect, layout }: TimelineProps
                 height: `${verticalGap}px`,
                 backgroundColor: colors.timelineColor,
                 transform: 'translateX(-50%)',
+                opacity: 0.6,
               }}
             />
             <button
               onClick={() => onSelect(activity)}
-              className="rounded-2xl shadow-sm px-6 py-3 min-w-[140px] text-center font-semibold hover:shadow-md transition-all duration-200"
-              style={{ backgroundColor: colors.activityBoxBackground, color: colors.activityBoxText, border: '1px solid rgba(0,0,0,0.08)' }}
+              className="rounded-2xl shadow-sm px-5 py-2.5 min-w-[140px] text-center font-medium hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
+              style={{
+                backgroundColor: colors.activityBoxBackground,
+                color: colors.activityBoxText,
+                border: `1px solid ${colors.timelineColor}`,
+              }}
             >
               {activity.name}
             </button>
