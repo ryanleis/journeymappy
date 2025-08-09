@@ -23,7 +23,7 @@ export default function Timeline({ activities, onSelect, layout }: TimelineProps
   const [containerWidth, setContainerWidth] = useState<number>(0);
 
   // Small side buffer so content doesn't touch page edges
-  const SIDE_BUFFER = 18; // px on each side (was 12)
+  const SIDE_BUFFER = 31.5; // px on each side (was 18; +75%)
 
   useEffect(() => {
     setMounted(true);
