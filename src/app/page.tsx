@@ -7,6 +7,7 @@ import ActivityEditModal from "../components/ActivityEditModal";
 import ColorSettings from "../components/ColorSettings";
 import TimelineSetup, { TimelineConfig } from "../components/TimelineSetup";
 import PDFExport from "../components/PDFExport";
+import PPTXExport from "../components/PPTXExport";
 import ActivityFilter from "../components/ActivityFilter";
 import TimelineSharing from "../components/TimelineSharing";
 import FileImport from "../components/FileImport";
@@ -287,6 +288,7 @@ export default function HomePage() {
           </svg>
         </button>
         <PDFExport activities={filteredActivities} timelineConfig={currentTimeline} />
+        <PPTXExport activities={filteredActivities} timelineConfig={currentTimeline} layout={timelineLayout} />
         <TimelineSharing currentTimeline={currentTimeline} activities={activities} />
         <FileImport onImport={importActivities} />
         <StartOver onStartOver={handleStartOver} />

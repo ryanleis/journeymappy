@@ -13,6 +13,7 @@
     "jspdf": "^3.0.1",
     "next": "15.3.3",
     "papaparse": "^5.5.3",
+    "pptxgenjs": "^4.0.1",
     "prisma": "^6.13.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
