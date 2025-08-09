@@ -2,7 +2,7 @@
 
 This is a Next.js App Router project for building and sharing visual timelines.
 
-## One-line Install
+## One-line Automated Install
 
 On macOS/zsh:
 
@@ -23,7 +23,7 @@ npm run dev
 
 Open http://localhost:3000.
 
-## Getting Started
+## Getting Started - Manual Install
 
 ### 1) Install dependencies
 
