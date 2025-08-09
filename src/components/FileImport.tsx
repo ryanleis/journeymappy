@@ -260,7 +260,8 @@ export default function FileImport({ onImport }: FileImportProps) {
                     type="file"
                     accept=".csv,.xlsx,.xls"
                     onChange={handleFileUpload}
-                    className="w-full p-2 rounded-lg border border-gray-300"
+                    className="w-full p-2 rounded-lg border"
+                    style={{ backgroundColor: colors.formBackground, color: colors.activityBoxText, borderColor: colors.activityBoxText, caretColor: colors.activityBoxText }}
                     disabled={isLoading}
                   />
                   {isLoading && (
@@ -368,4 +369,4 @@ export default function FileImport({ onImport }: FileImportProps) {
       )}
     </>
   );
-} 
+}

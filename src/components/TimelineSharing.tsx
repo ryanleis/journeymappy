@@ -229,7 +229,8 @@ export default function TimelineSharing({ currentTimeline, activities }: Timelin
                       type="text"
                       value={shareLink}
                       readOnly
-                      className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+                      className="w-full rounded-md border px-3 py-2 text-sm"
+                      style={{ backgroundColor: colors.formBackground, color: colors.activityBoxText, borderColor: colors.activityBoxText }}
                     />
                     <button
                       onClick={copyShareLink}
@@ -254,7 +255,8 @@ export default function TimelineSharing({ currentTimeline, activities }: Timelin
                     onChange={(e) => setImportData(e.target.value)}
                     placeholder="Paste timeline JSON data here..."
                     rows={4}
-                    className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+                    className="w-full rounded-md border px-3 py-2 text-sm"
+                    style={{ backgroundColor: colors.formBackground, color: colors.activityBoxText, borderColor: colors.activityBoxText, caretColor: colors.activityBoxText }}
                   />
                   <button
                     onClick={importTimeline}
@@ -284,4 +286,4 @@ export default function TimelineSharing({ currentTimeline, activities }: Timelin
       )}
     </>
   );
-} 
+}

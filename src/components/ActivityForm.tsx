@@ -36,56 +36,61 @@ export default function ActivityForm({ onAdd }: ActivityFormProps) {
       style={{ backgroundColor: colors.formBackground }}
     >
       <div>
-        <label className="block text-gray-700 font-medium mb-1">Name</label>
+        <label className="block font-medium mb-1" style={{ color: colors.activityBoxText }}>Name</label>
         <input
           name="name"
           value={form.name}
           onChange={handleChange}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          style={{ backgroundColor: colors.formBackground, color: colors.activityBoxText, borderColor: colors.activityBoxText, caretColor: colors.activityBoxText }}
           required
         />
       </div>
       <div>
-        <label className="block text-gray-700 font-medium mb-1">Description</label>
+        <label className="block font-medium mb-1" style={{ color: colors.activityBoxText }}>Description</label>
         <textarea
           name="description"
           value={form.description}
           onChange={handleChange}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          style={{ backgroundColor: colors.formBackground, color: colors.activityBoxText, borderColor: colors.activityBoxText, caretColor: colors.activityBoxText }}
           rows={2}
         />
       </div>
       <div className="flex gap-4">
         <div className="flex-1">
-          <label className="block text-gray-700 font-medium mb-1">Start Date</label>
+          <label className="block font-medium mb-1" style={{ color: colors.activityBoxText }}>Start Date</label>
           <input
             type="date"
             name="startDate"
             value={form.startDate}
             onChange={handleChange}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            style={{ backgroundColor: colors.formBackground, color: colors.activityBoxText, borderColor: colors.activityBoxText, caretColor: colors.activityBoxText }}
             required
           />
         </div>
         <div className="flex-1">
-          <label className="block text-gray-700 font-medium mb-1">End Date</label>
+          <label className="block font-medium mb-1" style={{ color: colors.activityBoxText }}>End Date</label>
           <input
             type="date"
             name="endDate"
             value={form.endDate}
             onChange={handleChange}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            style={{ backgroundColor: colors.formBackground, color: colors.activityBoxText, borderColor: colors.activityBoxText, caretColor: colors.activityBoxText }}
             required
           />
         </div>
       </div>
       <div>
-        <label className="block text-gray-700 font-medium mb-1">Status</label>
+        <label className="block font-medium mb-1" style={{ color: colors.activityBoxText }}>Status</label>
         <select
           name="status"
           value={form.status}
           onChange={handleChange}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          style={{ backgroundColor: colors.formBackground, color: colors.activityBoxText, borderColor: colors.activityBoxText }}
         >
           <option>Planned</option>
           <option>In Progress</option>
@@ -100,4 +105,4 @@ export default function ActivityForm({ onAdd }: ActivityFormProps) {
       </button>
     </form>
   );
-} 
+}

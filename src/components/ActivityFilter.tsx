@@ -143,7 +143,8 @@ export default function ActivityFilter({ activities, currentTimeline, onFilterCh
               value={filters.searchTerm}
               onChange={(e) => setFilters({ ...filters, searchTerm: e.target.value })}
               placeholder="Search activities..."
-              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              style={{ backgroundColor: colors.formBackground, color: colors.activityBoxText, borderColor: colors.activityBoxText, caretColor: colors.activityBoxText }}
             />
           </div>
 
@@ -153,7 +154,8 @@ export default function ActivityFilter({ activities, currentTimeline, onFilterCh
             <select
               value={filters.status}
               onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              style={{ backgroundColor: colors.formBackground, color: colors.activityBoxText, borderColor: colors.activityBoxText }}
             >
               {statusOptions.map(status => (
                 <option key={status} value={status}>
@@ -169,7 +171,8 @@ export default function ActivityFilter({ activities, currentTimeline, onFilterCh
             <select
               value={filters.dateRange}
               onChange={(e) => setFilters({ ...filters, dateRange: e.target.value })}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              style={{ backgroundColor: colors.formBackground, color: colors.activityBoxText, borderColor: colors.activityBoxText }}
             >
               {dateRangeOptions.map(option => (
                 <option key={option.value} value={option.value}>
@@ -205,4 +208,4 @@ export default function ActivityFilter({ activities, currentTimeline, onFilterCh
       )}
     </div>
   );
-} 
+}

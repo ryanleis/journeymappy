@@ -22,6 +22,9 @@ export default function Timeline({ activities, onSelect, layout }: TimelineProps
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [containerWidth, setContainerWidth] = useState<number>(0);
 
+  // Small side buffer so content doesn't touch page edges
+  const SIDE_BUFFER = 18; // px on each side (was 12)
+
   useEffect(() => {
     setMounted(true);
     const measure = () => {
@@ -63,7 +66,7 @@ export default function Timeline({ activities, onSelect, layout }: TimelineProps
   const naturalContainerWidth = Math.ceil((lastPos - shift) + activityWidth / 2);
 
   // Available width is based on this component's container, not the viewport
-  const availableWidth = mounted ? Math.max(300, containerWidth) : Infinity;
+  const availableWidth = mounted ? Math.max(300, containerWidth - SIDE_BUFFER * 2) : Infinity;
 
   // Proportional scaling: fill container when there's space; scroll when too wide
   let positions = normalizedPositions;
@@ -187,7 +190,7 @@ export default function Timeline({ activities, onSelect, layout }: TimelineProps
   if (needsScroll) {
     // Enable horizontal scroll when too wide (only timeline section scrolls)
     return (
-      <div ref={containerRef} className="relative w-full">
+      <div ref={containerRef} className="relative w-full" style={{ paddingLeft: `${SIDE_BUFFER}px`, paddingRight: `${SIDE_BUFFER}px` }}>
         <div className="overflow-x-auto pb-4" style={{ scrollbarColor: `${colors.timelineColor} transparent` }}>
           <div style={{ width: `${contentWidth}px` }}>
             {content}
@@ -203,7 +206,7 @@ export default function Timeline({ activities, onSelect, layout }: TimelineProps
   }
 
   return (
-    <div ref={containerRef} className="relative w-full" style={{ maxWidth: '100%' }}>
+    <div ref={containerRef} className="relative w-full" style={{ maxWidth: '100%', paddingLeft: `${SIDE_BUFFER}px`, paddingRight: `${SIDE_BUFFER}px` }}>
       {content}
     </div>
   );
